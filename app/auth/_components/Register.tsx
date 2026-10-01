@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { describeApiError } from "@/utils/apiError";
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
@@ -31,9 +32,6 @@ interface RegisterProps {
  */
 const ROLE_OPTIONS: { value: Role; label: string }[] = [
   { value: "FARMER", label: "Farmer" },
-  { value: "SYSTEM_ADMIN", label: "System Admin" },
-  { value: "GOVERNMENT_ADMIN", label: "Government Admin" },
-  { value: "AGRARIAN_SERVICE_OFFICER", label: "Agrarian Service Officer" },
   { value: "PRIVATE_AGRO_DEALER", label: "Private Agro Dealer" },
   { value: "ORGANIC_FERTILIZER_PRODUCER", label: "Organic Fertilizer Producer" },
 ];
@@ -68,10 +66,8 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
           role: values.role
         });
         toast.success("Account created successfully!");
-      } catch (error: any) {
-        setServerError(
-          error?.response?.data?.message || error?.message || "An unexpected error occurred. Please try again."
-        );
+      } catch (error: unknown) {
+        setServerError(describeApiError(error, "An unexpected error occurred. Please try again."));
       }
     },
   });

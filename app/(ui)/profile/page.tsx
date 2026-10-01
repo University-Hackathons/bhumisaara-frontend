@@ -6,6 +6,7 @@ import GovermentProfile from "@/components/goverment/GovermentProfile";
 import AgrarianProfile from "@/components/agrarian-officer/AgrarianProfile";
 import DealerProfile from "@/components/private-dealer/DealerProfile";
 import OrganicProducerProfile from "@/components/organic-producer/OrganicProducerProfile";
+import AdminProfile from "@/components/system-admin/AdminProfile";
 
 export default function ProfilePage() {
   const { user, isLoading } = useAuth();
@@ -49,17 +50,4 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-// Inline role-specific components as placeholders for now
-function AdminProfile() {
-  return (
-    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
-      <h1 className="text-3xl font-bold text-foreground">Admin Profile</h1>
-      <div className="p-6 bg-card border border-border shadow-sm rounded-xl">
-        <p className="text-base text-muted-foreground">Admin profile details coming soon.</p>
-      </div>
-    </div>
-  );
-}
-
 

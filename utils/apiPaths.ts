@@ -103,6 +103,24 @@ const apiPaths = {
     area: "/fertilizer-requests/area",
     review: (requestId: number) => `/fertilizer-requests/${requestId}/review`,
   },
+  admin: {
+    users: "/admin/users",
+    user: (userId: number) => `/admin/users/${userId}`,
+    banUser: (userId: number) => `/admin/users/${userId}/ban`,
+    unbanUser: (userId: number) => `/admin/users/${userId}/unban`,
+    resetPassword: (userId: number) => `/admin/users/${userId}/reset-password`,
+    changeRole: (userId: number) => `/admin/users/${userId}/role`,
+    assignArea: (userId: number) => `/admin/users/${userId}/area`,
+    clearWallet: (userId: number) => `/admin/users/${userId}/wallet`,
+    areas: "/admin/areas",
+    area: (areaId: number) => `/admin/areas/${areaId}`,
+    areaCoverage: "/admin/areas/coverage",
+    activateArea: (areaId: number) => `/admin/areas/${areaId}/activate`,
+    deactivateArea: (areaId: number) => `/admin/areas/${areaId}/deactivate`,
+    health: "/admin/health",
+    wallets: "/admin/wallets",
+    auditLogs: "/admin/audit-logs",
+  },
 };
 
 export default apiPaths;

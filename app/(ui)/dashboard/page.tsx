@@ -12,6 +12,7 @@ const GovermentDashboard = dynamic(() => import("@/components/goverment/Govermen
 const AgrarianDashboard = dynamic(() => import("@/components/agrarian-officer/AgrarianDashboard"));
 const DealerDashboard = dynamic(() => import("@/components/private-dealer/DealerDashboard"));
 const OrganicProducerDashboard = dynamic(() => import("@/components/organic-producer/OrganicProducerDashboard"));
+const AdminDashboard = dynamic(() => import("@/components/system-admin/AdminDashboard"));
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
@@ -53,20 +54,4 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-// Inline role-specific components (to avoid creating many files right now)
-
-
-function AdminDashboard() {
-  return (
-    <div className="p-8 space-y-6">
-      <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-      <div className="p-6 bg-card text-card-foreground shadow-sm rounded-xl">
-        <h2 className="text-xl font-semibold mb-2">National Inventory</h2>
-        <p className="text-base text-muted-foreground">Audit real-time tracking across all agrarian centers.</p>
-      </div>
-    </div>
-  );
-}
-
 

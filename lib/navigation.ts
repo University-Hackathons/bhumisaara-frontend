@@ -68,13 +68,19 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard",
     group: "overview",
     roles: [
-      "SYSTEM_ADMIN",
       "GOVERNMENT_ADMIN",
       "AGRARIAN_SERVICE_OFFICER",
       "FARMER",
       "PRIVATE_AGRO_DEALER",
       "ORGANIC_FERTILIZER_PRODUCER",
     ],
+  },
+  {
+    id: "platformHealth",
+    label: "Platform Health",
+    href: "/dashboard",
+    group: "administration",
+    roles: ["SYSTEM_ADMIN"],
   },
 
   // ─── Farmer: the subsidy paperwork ──────────────────────────────────────
@@ -197,7 +203,7 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Officer Handovers",
     href: "/handover-history",
     group: "distribution",
-    roles: ["GOVERNMENT_ADMIN", "SYSTEM_ADMIN"],
+    roles: ["GOVERNMENT_ADMIN"],
   },
 
   // ─── Government: the treasury side ──────────────────────────────────────
@@ -213,14 +219,14 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Redemption Claims",
     href: "/redemption-claims",
     group: "credits",
-    roles: ["GOVERNMENT_ADMIN", "SYSTEM_ADMIN"],
+    roles: ["GOVERNMENT_ADMIN"],
   },
   {
     id: "creditOversight",
     label: "Credit Oversight",
     href: "/credit-oversight",
     group: "credits",
-    roles: ["GOVERNMENT_ADMIN", "SYSTEM_ADMIN"],
+    roles: ["GOVERNMENT_ADMIN"],
   },
 
   // ─── Sellers (both roles share these screens) ───────────────────────────
@@ -254,8 +260,12 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Assign Officers",
     href: "/officer-assign",
     group: "administration",
-    roles: ["GOVERNMENT_ADMIN", "SYSTEM_ADMIN"],
+    roles: ["GOVERNMENT_ADMIN"],
   },
+  { id: "adminUsers", label: "Users", href: "/admin-users", group: "administration", roles: ["SYSTEM_ADMIN"] },
+  { id: "adminAreas", label: "Areas & Coverage", href: "/admin-areas", group: "administration", roles: ["SYSTEM_ADMIN"] },
+  { id: "adminWallets", label: "Wallets", href: "/admin-wallets", group: "administration", roles: ["SYSTEM_ADMIN"] },
+  { id: "adminAuditLog", label: "Audit Log", href: "/admin-audit-logs", group: "administration", roles: ["SYSTEM_ADMIN"] },
 
   // NOTE: /profile is deliberately absent. It is reached from the sidebar
   // footer's account menu, and listing it twice made it read as two places.
@@ -305,6 +315,10 @@ import {
   ShieldCheck,
   PackageCheck,
   Banknote,
+  Users,
+  MapPinned,
+  WalletCards,
+  ScrollText,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
@@ -340,4 +354,9 @@ export const ICONS_MAP: Record<string, ComponentType<SVGProps<SVGSVGElement>>> =
   redemption: Banknote,
   // Administration
   officerAssign: UserCheck,
+  platformHealth: ShieldCheck,
+  adminUsers: Users,
+  adminAreas: MapPinned,
+  adminWallets: WalletCards,
+  adminAuditLog: ScrollText,
 };

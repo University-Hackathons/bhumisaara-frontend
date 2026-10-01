@@ -229,7 +229,7 @@ export default function OfficerAssign() {
                   </Select>
                   {!isLoading && areas.length === 0 && (
                     <p className="text-xs text-muted-foreground">
-                      No areas exist yet — the areas table is empty.
+                      No areas exist yet - the areas table is empty.
                     </p>
                   )}
                 </div>
@@ -300,8 +300,8 @@ export default function OfficerAssign() {
                         <TableRow key={officer.userId} className="border-border hover:bg-muted/30 transition-colors">
                           <TableCell className="py-4 px-6 font-medium text-foreground">{officer.username}</TableCell>
                           <TableCell className="py-4 px-6 text-muted-foreground">{officer.email}</TableCell>
-                          <TableCell className="py-4 px-6">{officer.areaName ?? "—"}</TableCell>
-                          <TableCell className="py-4 px-6">{officer.district ?? "—"}</TableCell>
+                          <TableCell className="py-4 px-6">{officer.areaName ?? "-"}</TableCell>
+                          <TableCell className="py-4 px-6">{officer.district ?? "-"}</TableCell>
                           <TableCell className="py-4 px-6">
                             {officer.isAssigned ? (
                               <Badge variant="success">

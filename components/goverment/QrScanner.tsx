@@ -150,7 +150,7 @@ export function ScanField({
       <div className="flex flex-col gap-3">
         <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <Camera className="w-4 h-4" />
-          {label} — camera
+          {label} (camera)
         </span>
 
         {isCameraOn && !disabled ? (
@@ -185,7 +185,7 @@ export function ScanField({
       <div className="flex flex-col gap-3">
         <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
           <Keyboard className="w-4 h-4" />
-          {label} — type it in
+          {label} (type it in)
         </span>
         <Input
           value={manualValue}

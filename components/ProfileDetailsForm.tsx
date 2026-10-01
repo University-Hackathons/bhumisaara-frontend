@@ -144,7 +144,7 @@ export default function ProfileDetailsForm({
                     <Skeleton className="h-4 w-20" />
                   ) : (
                     <span className="text-foreground font-medium truncate">
-                      {profile?.username ?? "—"}
+                      {profile?.username ?? "-"}
                     </span>
                   )}
                 </div>
@@ -194,7 +194,7 @@ export default function ProfileDetailsForm({
                 <>
                   {!isLoading && isIncomplete && (
                     <p className="text-sm text-muted-foreground rounded-lg border border-border bg-muted/30 px-4 py-3">
-                      Your profile isn&apos;t complete yet — fill these in so officers and
+                      Your profile isn&apos;t complete yet - fill these in so officers and
                       administrators can identify you.
                     </p>
                   )}

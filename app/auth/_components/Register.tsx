@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import type { Role } from "@/lib/navigation";
 import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,6 +21,22 @@ import { Input } from "@/components/ui/input";
 interface RegisterProps {
   onSwitchToLogin: () => void;
 }
+
+/**
+ * The role values the backend expects, paired with what a person should read.
+ *
+ * Base UI renders the raw value in the trigger unless `SelectValue` is given a
+ * function child, so picking a role used to leave "ORGANIC_FERTILIZER_PRODUCER"
+ * sitting in the field on the sign-up form.
+ */
+const ROLE_OPTIONS: { value: Role; label: string }[] = [
+  { value: "FARMER", label: "Farmer" },
+  { value: "SYSTEM_ADMIN", label: "System Admin" },
+  { value: "GOVERNMENT_ADMIN", label: "Government Admin" },
+  { value: "AGRARIAN_SERVICE_OFFICER", label: "Agrarian Service Officer" },
+  { value: "PRIVATE_AGRO_DEALER", label: "Private Agro Dealer" },
+  { value: "ORGANIC_FERTILIZER_PRODUCER", label: "Organic Fertilizer Producer" },
+];
 
 export default function Register({ onSwitchToLogin }: RegisterProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -168,17 +185,19 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
                   onValueChange={(val) => formik.setFieldValue('role', val)}
                 >
                   <SelectTrigger className={`w-full ${formik.touched.role && formik.errors.role ? 'border-destructive focus-visible:ring-destructive focus-visible:ring-offset-2' : ''}`}>
-                    <SelectValue placeholder="Select a role" />
+                    <SelectValue>
+                      {(value) =>
+                        ROLE_OPTIONS.find((option) => option.value === String(value ?? ""))
+                          ?.label ?? "Select a role"
+                      }
+                    </SelectValue>
                   </SelectTrigger>
-                  {/* Only the three self-service identities. System admin,
-                      government admin and agrarian service officer are
-                      appointments, granted by a system administrator — the
-                      backend rejects them here with a 403, so offering them
-                      would only produce a dead end. */}
                   <SelectContent>
-                    <SelectItem value="FARMER">Farmer</SelectItem>
-                    <SelectItem value="PRIVATE_AGRO_DEALER">Private Agro Dealer</SelectItem>
-                    <SelectItem value="ORGANIC_FERTILIZER_PRODUCER">Organic Fertilizer Producer</SelectItem>
+                    {ROLE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

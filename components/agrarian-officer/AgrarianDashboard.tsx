@@ -252,7 +252,7 @@ export default function AgrarianDashboard() {
         </div>
 
         {/* The on-chain side of the same stock listed under Local Inventory */}
-        <WalletAssets description="Batch tokens in your wallet — burned as you hand sacks to farmers." />
+        <WalletAssets description="Batch tokens in your wallet - burned as you hand sacks to farmers." />
       </main>
     </div>
   );

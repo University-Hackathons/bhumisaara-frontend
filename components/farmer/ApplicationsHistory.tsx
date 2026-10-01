@@ -157,10 +157,10 @@ export default function ApplicationsHistory() {
                       <TableCell className="py-4 px-6">{request.fertilizerType}</TableCell>
                       <TableCell className="py-4 px-6">{request.requestedKg}kg</TableCell>
                       <TableCell className="py-4 px-6 font-medium text-foreground">
-                        {request.approvedKg != null ? `${request.approvedKg}kg` : "—"}
+                        {request.approvedKg != null ? `${request.approvedKg}kg` : "-"}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-muted-foreground">
-                        {request.reviewedByOfficerUsername ?? "—"}
+                        {request.reviewedByOfficerUsername ?? "-"}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-muted-foreground">
                         {formatDate(request.reviewedAt)}
@@ -234,14 +234,14 @@ export default function ApplicationsHistory() {
                       <TableCell className="py-4 px-6 text-muted-foreground">
                         {formatDate(collection.createdAt)}
                       </TableCell>
-                      <TableCell className="py-4 px-6">{collection.fertilizerType ?? "—"}</TableCell>
+                      <TableCell className="py-4 px-6">{collection.fertilizerType ?? "-"}</TableCell>
                       <TableCell className="py-4 px-6 font-medium text-foreground">
                         {formatKg(collection.amountDispensedKg)}
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <div className="flex flex-wrap gap-1">
                           {collection.sackSerials.length === 0 ? (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-muted-foreground">-</span>
                           ) : (
                             collection.sackSerials.map((serial) => (
                               <span
@@ -255,7 +255,7 @@ export default function ApplicationsHistory() {
                         </div>
                       </TableCell>
                       <TableCell className="py-4 px-6 text-muted-foreground">
-                        {collection.officerName ?? "—"}
+                        {collection.officerName ?? "-"}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-center">
                         <TxHashBadge transactionHash={collection.burnTransactionHash} groupHover />

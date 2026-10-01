@@ -8,7 +8,7 @@ This project runs Next.js 16, which has breaking changes vs. what's in your trai
 - `eslint.config.mjs` (flat config) is already in place; `package.json`'s `lint` script calls `eslint` directly, not the removed `next lint`.
 - `next.config.ts` uses `images.remotePatterns` (not the deprecated `images.domains`).
 - No `middleware.ts`/`proxy.ts` exists — nothing to rename.
-- One dynamic route segment exists: `app/(ui)/admin/users/[userId]`. It already handles the async-`params` change correctly (server component, `await params`, id passed to a client child) — copy that shape for any new one.
+- No dynamic route segments (`[param]`) exist yet, so the async `params`/`searchParams` breaking change doesn't currently apply.
 
 **Breaking changes to apply *if* you touch these areas:**
 - If you add a dynamic route or use `params`/`searchParams`/`cookies()`/`headers()`/`draftMode()`: they are now **fully async** (`await params`, etc.) — no synchronous fallback exists anymore.
@@ -66,25 +66,11 @@ bhumisaara-frontend/
 │   │   ├── credit-issuance/    # Government: mint a season's subsidy budget
 │   │   ├── redemption-claims/  # Government: claims queue with on-chain verification
 │   │   ├── credit-oversight/   # Government: reconciliation & seller anomaly flags
-│   │   ├── admin/              # SYSTEM_ADMIN operator panel — see §9
-│   │   │   ├── users/          #   Directory (filters live in the URL) + [userId] detail
-│   │   │   ├── areas/          #   Officer coverage + area CRUD & soft deactivation
-│   │   │   ├── wallets/        #   Wallet link status; clearing only, never setting
-│   │   │   └── audit-log/      #   The append-only trail, read-only by design
 │   │   └── profile/            # User Profile Settings
 │   ├── auth/                   # Authentication Pages (Login/Register)
 │   ├── globals.css             # Tailwind v4 Global CSS & Design System
 │   └── layout.tsx              # Root App Layout with Auth & Thirdweb Providers
 ├── components/                 # Role-Specific & UI Components
-│   ├── admin/                  # SYSTEM_ADMIN operator screens — see §9
-│   │   ├── AdminDashboard.tsx  #   Problem counts only; zero is the healthy answer
-│   │   ├── AdminUsers.tsx      #   Paginated directory, filters in the URL
-│   │   ├── AdminUserDetail.tsx #   Role / area / password / wallet / ban, all confirmed
-│   │   ├── AdminAreaCoverage.tsx # Vacancies and what they cost, plus area CRUD
-│   │   ├── AdminWallets.tsx    #   Unlinked officers & gov admins flagged as blocking
-│   │   ├── AdminAuditLog.tsx   #   Read-only trail
-│   │   ├── ConfirmDialog.tsx   #   THE destructive-action confirmation. Never window.confirm
-│   │   └── AdminOnly.tsx       #   Cosmetic role guard; the backend is the real boundary
 │   ├── agrarian-officer/       # Agrarian Officer Dashboard & Forms
 │   ├── farmer/                 # Farmer Portal Views
 │   ├── goverment/              # Government Administrator Dashboard & Minting Forms
@@ -119,12 +105,10 @@ bhumisaara-frontend/
 │   ├── use-listings.ts         # Marketplace browse (with filters) + the seller's own
 │   ├── use-orders.ts           # Farmer / seller / national order lists
 │   ├── use-redemption-claims.ts # Seller's own, the review queue, the full ledger
-│   ├── use-admin.ts            # SYSTEM_ADMIN: users, coverage, wallets, health, audit log
 │   └── use-mobile.ts           # Mobile Breakpoint Detection
 ├── lib/                        # Core Utilities & Thirdweb Setup
 │   ├── contract.ts             # Thirdweb Contract Instance (ERC-1155)
 │   ├── distribution.ts         # Shared batch/sack/demand/transfer/handover DTO shapes
-│   ├── admin.ts                # Admin DTO shapes, role labels, audit-action formatting
 │   ├── navigation.ts           # Navigation Registry & Role Permission Mapping
 │   ├── thirdwebClient.ts       # Thirdweb Client Instance
 │   └── utils.ts                # Tailwind Class Merger Utility (`cn`)
@@ -318,7 +302,6 @@ Read this before grepping the repo for the same answers — it saves a round-tri
   - The fertilizer-request status pill is `@/components/RequestStatusBadge.tsx`. It was duplicated verbatim in the farmer and officer history screens; adding a `RequestStatus` meant editing both. Don't fork it again.
   - The national distribution figures (totals, per-type, per-district, per-area, recent transfers) are fetched and aggregated once in `@/hooks/use-distribution-levels.ts`. `DistributionLevel.tsx` is purely presentational on top of it. Every number it renders comes from `GET /api/batches`, `GET /api/v1/transfers/demand` or `GET /api/v1/transfers` — if a metric has no endpoint behind it (farmer collections, dealer stock, warehouse capacity), it is **not** on the screen rather than mocked.
   - `fertilizer_batches.volume_kg` is mint volume **less farmer collections** — transfers to officers deliberately don't consume it. Label it "stock on record", never "total imports".
-  - SYSTEM_ADMIN DTO shapes live in `@/lib/admin.ts`, the third companion to `distribution.ts` and `marketplace.ts`, and the hooks in `@/hooks/use-admin.ts`. The destructive-action confirmation is `@/components/admin/ConfirmDialog.tsx` — **never `window.confirm`**. See §9 for the separation-of-duties rule those screens exist to enforce.
 - **No automated test suite exists** in this repo (no Jest/Vitest config, no `*.test.*`/`*.spec.*` files). Don't spend time hunting for one.
   - Subsidy credit / marketplace DTO shapes live in `@/lib/marketplace.ts`, the companion to `@/lib/distribution.ts`. Import the types; don't redeclare them per component. The two files are separate **because the two token types are separate** — see §4.
   - **Both seller roles share one set of components**, in `components/seller/`: `SellerListings`, `SellerOrders`, `SellerRedemption`, `SellerDashboard`. `components/private-dealer/DealerDashboard.tsx` and `components/organic-producer/OrganicProducerDashboard.tsx` are now thin wrappers so the `/dashboard` switchboard keeps resolving per role. Don't fork these per role: the only difference between a dealer and a producer is `isOrganic`, which the **server** sets from the caller's role, and two copies would be two chances to let a dealer sell "organic" at 1.5kg per credit.
@@ -329,55 +312,3 @@ Read this before grepping the repo for the same answers — it saves a round-tri
 - **Required env vars** (see `.env.development`): `NEXT_PUBLIC_API_URL` (Spring Boot backend base URL), `NEXT_PUBLIC_CONTRACT_ADDRESS` (ERC-1155 contract), `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`.
 - **Dev/preview server**: `.claude/launch.json` runs `npm run dev` on port 3000 for browser-based preview tools.
 - **Don't read/grep in full**: `node_modules/`, `.next/`, `package-lock.json`. If you need one specific package's behavior, target that package's file directly rather than searching the whole tree.
-
----
-
-## 9. The SYSTEM_ADMIN operator panel
-
-### The design principle
-
-**A system administrator is a platform operator, not a participant in the
-fertilizer system.** They govern *who may act*; they never act. No admin screen
-mints, transfers, burns, holds tokens, issues credits, approves a redemption
-claim, or touches a batch, listing or order — those belong to the government
-and seller screens, and the split is the point: an operator who can create
-accounts must not also be able to spend from the treasury with them.
-
-So `components/admin/` contains no thirdweb import, and `lib/admin.ts` has no
-token, batch, credit, listing or order type in it. Keep it that way.
-
-### Where things live
-
-- **Routes** — `app/(ui)/admin/{users,users/[userId],areas,wallets,audit-log}`. Each wraps its screen in `AdminOnly`, which is cosmetic: every `/api/v1/admin/**` endpoint carries `@PreAuthorize("hasRole('SYSTEM_ADMIN')")` and is the real boundary. The guard exists so a user who reaches the URL sees a sentence rather than a screen of failed requests.
-- **Navigation** — the four `admin*` entries in `NAV_ITEMS` are scoped to `["SYSTEM_ADMIN"]` alone. A government admin has no business administering accounts.
-- **Hooks** — `use-admin.ts`, on the same `use-api-resource` wrapper as everything else, so they share its cache and its `{data,isLoading,error,refetch}` shape.
-
-### `app/(ui)/admin/users/[userId]` is the first dynamic route in this app
-
-Next.js 16 makes `params` **fully async** with no synchronous fallback, so that
-page stays a server component, `await`s `params`, and hands the id to the
-client screen. Any future dynamic route must do the same — see §1.
-
-### Every destructive action goes through `ConfirmDialog`
-
-Ban, role change, password reset, wallet clear and area deactivation all open
-`components/admin/ConfirmDialog.tsx`. **Never `window.confirm`**: it cannot
-name the account being changed, cannot state the consequence, and cannot host
-the extra field a role change or password reset needs. The dialog also refuses
-to dismiss while its request is in flight, so an admin is never left unsure
-whether the action landed.
-
-`components/ui/dialog.tsx` is the centred modal, built on the same
-`@base-ui/react/dialog` primitive as `sheet.tsx` — no second dialog library
-was added.
-
-### Two things the UI must not do
-
-- **Never render a full wallet address in a list.** The backend only ever sends `walletAddressTruncated`, and there is no endpoint that would return more.
-- **Never offer to *set* a wallet address.** Clearing is the only wallet write an operator gets. Being able to write that field would let an admin redirect a mint, a stock transfer or a farmer's credits to a wallet of their own, with the on-chain record looking entirely legitimate.
-
-### Registration
-
-`app/auth/_components/Register.tsx` offers only Farmer, Private Agro Dealer and
-Organic Fertilizer Producer. The other three roles are appointments — the
-backend returns 403 for them — so listing them would only produce a dead end.

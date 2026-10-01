@@ -170,7 +170,7 @@ export default function FarmerProfile() {
                     </span>
                   ) : (
                     <span className="text-muted-foreground">
-                      No area set yet — you can&apos;t submit fertilizer requests until you pick one.
+                      No area set yet - you can&apos;t submit fertilizer requests until you pick one.
                     </span>
                   )}
                 </div>
@@ -227,7 +227,7 @@ export default function FarmerProfile() {
 
                 {!isAreaLoading && districts.length === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    No areas exist yet — ask an administrator to add them.
+                    No areas exist yet - ask an administrator to add them.
                   </p>
                 )}
               </>

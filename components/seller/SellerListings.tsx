@@ -52,6 +52,29 @@ import {
  * mean two files to edit and two chances to let a dealer sell "organic".
  */
 
+/**
+ * Base UI renders the *raw* value in a select trigger unless `SelectValue` is
+ * given a function child — which is why this form used to show "ACTIVE" and
+ * "Yes" once a choice was made. `label` is what the trigger shows; `hint`
+ * spells the consequence out in the open dropdown, where there is room for it.
+ */
+const LISTING_STATUSES: { value: "ACTIVE" | "PAUSED"; label: string; hint: string }[] = [
+  { value: "ACTIVE", label: "Active", hint: "visible to farmers" },
+  { value: "PAUSED", label: "Paused", hint: "hidden from the marketplace" },
+];
+
+const SUBSIDY_CHOICES: { value: "Yes" | "No"; label: string }[] = [
+  { value: "Yes", label: "Accepted" },
+  { value: "No", label: "Cash only" },
+];
+
+/** Resolves the label Base UI should show for the currently selected value. */
+const labelFor = (
+  options: { value: string; label: string }[],
+  value: unknown,
+  fallback: string
+) => options.find((option) => option.value === String(value ?? ""))?.label ?? fallback;
+
 interface ListingForm {
   productName: string;
   fertilizerType: string;
@@ -379,11 +402,16 @@ export default function SellerListings() {
                     disabled={isSaving}
                   >
                     <SelectTrigger id="status" className="w-full h-11 bg-background">
-                      <SelectValue placeholder="Choose visibility" />
+                      <SelectValue>
+                        {(value) => labelFor(LISTING_STATUSES, value, "Choose visibility")}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">Active — visible to farmers</SelectItem>
-                      <SelectItem value="PAUSED">Paused — hidden from the marketplace</SelectItem>
+                      {LISTING_STATUSES.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label} - {option.hint}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -393,18 +421,23 @@ export default function SellerListings() {
                     Subsidy credits
                   </label>
                   <Select
-                    value={form.isSubsidyEligible ? "yes" : "no"}
+                    value={form.isSubsidyEligible ? "Yes" : "No"}
                     onValueChange={(value) =>
-                      setForm({ ...form, isSubsidyEligible: String(value) === "yes" })
+                      setForm({ ...form, isSubsidyEligible: String(value) === "Yes" })
                     }
                     disabled={isSaving}
                   >
                     <SelectTrigger id="isSubsidyEligible" className="w-full h-11 bg-background">
-                      <SelectValue placeholder="Accept subsidy credits?" />
+                      <SelectValue>
+                        {(value) => labelFor(SUBSIDY_CHOICES, value, "Accept subsidy credits?")}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="yes">Accepted</SelectItem>
-                      <SelectItem value="no">Cash only</SelectItem>
+                      {SUBSIDY_CHOICES.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">

@@ -96,32 +96,6 @@ const apiPaths = {
     review: (claimId: number) => `/redemption-claims/${claimId}/review`,
     settle: (claimId: number) => `/redemption-claims/${claimId}/settle`,
   },
-  /**
-   * The SYSTEM_ADMIN operator surface. User and platform administration only —
-   * there is deliberately no token, batch, credit, listing or order path here,
-   * because an operator governs who may act and never acts themselves.
-   */
-  admin: {
-    users: (query?: string) => (query ? `/admin/users?${query}` : "/admin/users"),
-    user: (userId: number) => `/admin/users/${userId}`,
-    ban: (userId: number) => `/admin/users/${userId}/ban`,
-    unban: (userId: number) => `/admin/users/${userId}/unban`,
-    resetPassword: (userId: number) => `/admin/users/${userId}/reset-password`,
-    role: (userId: number) => `/admin/users/${userId}/role`,
-    area: (userId: number) => `/admin/users/${userId}/area`,
-    // Clear only. No endpoint sets a wallet address — see AdminUserService.
-    wallet: (userId: number) => `/admin/users/${userId}/wallet`,
-    areas: "/admin/areas",
-    areaCoverage: "/admin/areas/coverage",
-    updateArea: (areaId: number) => `/admin/areas/${areaId}`,
-    deactivateArea: (areaId: number) => `/admin/areas/${areaId}/deactivate`,
-    activateArea: (areaId: number) => `/admin/areas/${areaId}/activate`,
-    wallets: (unlinkedOnly?: boolean) =>
-      unlinkedOnly ? "/admin/wallets?unlinkedOnly=true" : "/admin/wallets",
-    health: "/admin/health",
-    auditLogs: (query?: string) =>
-      query ? `/admin/audit-logs?${query}` : "/admin/audit-logs",
-  },
   fertilizerRequests: {
     create: "/fertilizer-requests",
     mine: "/fertilizer-requests/me",

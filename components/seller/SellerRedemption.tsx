@@ -122,7 +122,7 @@ export default function SellerRedemption() {
 
       toast.dismiss(toastId);
       toast.success("Claim submitted for review.", {
-        description: `${formatCredits(parsedCredits)} — the ministry will approve before you burn.`,
+        description: `${formatCredits(parsedCredits)} - the ministry will approve before you burn.`,
         icon: <CheckCircle className="w-5 h-5 text-primary" />,
       });
 
@@ -153,7 +153,7 @@ export default function SellerRedemption() {
 
       toast.dismiss(toastId);
       toast.success("Claim settled.", {
-        description: `${formatCredits(pending.creditsClaimed)} burned — the treasury has honoured the claim.`,
+        description: `${formatCredits(pending.creditsClaimed)} burned - the treasury has honoured the claim.`,
         icon: <CheckCircle className="w-5 h-5 text-primary" />,
       });
 
@@ -164,7 +164,7 @@ export default function SellerRedemption() {
       // The credits are already destroyed. Losing this hash would leave a claim
       // nobody can settle, so it stays on screen until dismissed.
       toast.error("Credits burned on-chain, but the registry save failed.", {
-        description: `Record this transaction hash manually: ${burnTransactionHash} — ${describeApiError(
+        description: `Record this transaction hash manually: ${burnTransactionHash} - ${describeApiError(
           error,
           "Please check server connection."
         )}`,
@@ -279,8 +279,8 @@ export default function SellerRedemption() {
         <div className="rounded-xl border border-border bg-muted/30 px-6 py-4">
           <p className="text-sm text-muted-foreground">
             <strong className="text-foreground">Claim, then burn.</strong> The ministry reviews your
-            claim and approves the payment. You then burn the credits from your own wallet — nobody
-            else can destroy tokens you hold — and the claim is settled.
+            claim and approves the payment. You then burn the credits from your own wallet - nobody
+            else can destroy tokens you hold - and the claim is settled.
           </p>
         </div>
 
@@ -466,7 +466,7 @@ export default function SellerRedemption() {
                                   ? "Awaiting ministry review"
                                   : claim.processedAt
                                     ? formatDateTime(claim.processedAt)
-                                    : "—"}
+                                    : "-"}
                               </span>
                             )}
                           </div>

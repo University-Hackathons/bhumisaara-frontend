@@ -94,7 +94,7 @@ export default function OfficerDistributionHistory() {
                         {row.areaName ?? `Area #${row.areaId}`}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-muted-foreground">
-                        {row.district ?? "—"}
+                        {row.district ?? "-"}
                       </TableCell>
                       <TableCell className="py-4 px-6">{row.fertilizerType}</TableCell>
                       <TableCell className="py-4 px-6 text-right tabular-nums">

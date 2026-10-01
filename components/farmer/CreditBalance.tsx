@@ -67,7 +67,7 @@ export default function CreditBalance() {
           <p className="text-sm text-muted-foreground">
             One credit buys <strong className="text-foreground">1kg of chemical</strong> fertilizer
             or <strong className="text-foreground">1.5kg of organic</strong>. Credits are a claim on
-            the treasury — they are not stock, and they are not attached to any warehouse.
+            the treasury - they are not stock, and they are not attached to any warehouse.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default function CreditBalance() {
                     ) : onChainBalance !== null ? (
                       onChainBalance.toLocaleString()
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground mt-2">

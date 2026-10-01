@@ -257,40 +257,6 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ["GOVERNMENT_ADMIN", "SYSTEM_ADMIN"],
   },
 
-  // ─── Platform operations: SYSTEM_ADMIN only ─────────────────────────────
-  // The operator governs *who may act* in the fertilizer system and never
-  // acts in it, so none of these touch a token, batch, credit, listing or
-  // order. Every one of them is scoped to the single role — a government
-  // admin has no business administering accounts, and vice versa.
-  {
-    id: "adminUsers",
-    label: "Users",
-    href: "/admin/users",
-    group: "administration",
-    roles: ["SYSTEM_ADMIN"],
-  },
-  {
-    id: "adminAreas",
-    label: "Area Coverage",
-    href: "/admin/areas",
-    group: "administration",
-    roles: ["SYSTEM_ADMIN"],
-  },
-  {
-    id: "adminWallets",
-    label: "Wallet Oversight",
-    href: "/admin/wallets",
-    group: "administration",
-    roles: ["SYSTEM_ADMIN"],
-  },
-  {
-    id: "adminAuditLog",
-    label: "Audit Log",
-    href: "/admin/audit-log",
-    group: "administration",
-    roles: ["SYSTEM_ADMIN"],
-  },
-
   // NOTE: /profile is deliberately absent. It is reached from the sidebar
   // footer's account menu, and listing it twice made it read as two places.
 ];
@@ -339,10 +305,6 @@ import {
   ShieldCheck,
   PackageCheck,
   Banknote,
-  Users,
-  MapPin,
-  Wallet,
-  ScrollText,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 
@@ -378,9 +340,4 @@ export const ICONS_MAP: Record<string, ComponentType<SVGProps<SVGSVGElement>>> =
   redemption: Banknote,
   // Administration
   officerAssign: UserCheck,
-  // Platform operations
-  adminUsers: Users,
-  adminAreas: MapPin,
-  adminWallets: Wallet,
-  adminAuditLog: ScrollText,
 };

@@ -124,7 +124,7 @@ export default function RedemptionClaimsQueue() {
               ? `${claim.sellerName ?? "The seller"} can now burn ${formatCredits(
                   claim.creditsClaimed
                 )} to settle.`
-              : "Nothing was burned — the credits stay with the seller.",
+              : "Nothing was burned - the credits stay with the seller.",
           icon: <CheckCircle className="w-5 h-5 text-primary" />,
         }
       );
@@ -271,7 +271,7 @@ export default function RedemptionClaimsQueue() {
                               </>
                             ) : (
                               <span className="text-xs text-muted-foreground text-right">
-                                Approved — awaiting the seller&apos;s burn
+                                Approved - awaiting the seller&apos;s burn
                               </span>
                             )}
                           </div>
@@ -339,7 +339,7 @@ export default function RedemptionClaimsQueue() {
                         </Badge>
                       </TableCell>
                       <TableCell className="py-4 px-6 text-sm text-muted-foreground">
-                        {claim.processedByName ?? "—"}
+                        {claim.processedByName ?? "-"}
                         {claim.processedAt && (
                           <span className="block text-xs">{formatDateTime(claim.processedAt)}</span>
                         )}

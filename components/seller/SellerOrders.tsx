@@ -232,10 +232,10 @@ export default function SellerOrders() {
                           {formatKg(order.quantityKg)}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-right tabular-nums font-semibold text-foreground">
-                          {order.creditsUsed > 0 ? order.creditsUsed.toLocaleString() : "—"}
+                          {order.creditsUsed > 0 ? order.creditsUsed.toLocaleString() : "-"}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-right tabular-nums text-muted-foreground">
-                          {order.cashAmountLkr > 0 ? formatLkr(order.cashAmountLkr) : "—"}
+                          {order.cashAmountLkr > 0 ? formatLkr(order.cashAmountLkr) : "-"}
                         </TableCell>
                         <TableCell className="py-4 px-6">
                           <Badge variant={STATUS_VARIANT[order.status]}>

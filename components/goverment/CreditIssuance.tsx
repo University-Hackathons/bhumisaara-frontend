@@ -211,7 +211,7 @@ export default function CreditIssuance() {
       // The credits already exist on-chain. Losing this hash would leave an
       // issuance nobody can reconcile, so it stays on screen until dismissed.
       toast.error("Credits minted on-chain, but the registry save failed.", {
-        description: `Record this transaction hash manually: ${transactionHash} (token ${tokenId}) — ${describeApiError(
+        description: `Record this transaction hash manually: ${transactionHash} (token ${tokenId}) - ${describeApiError(
           error,
           "Please check server connection."
         )}`,
@@ -250,7 +250,7 @@ export default function CreditIssuance() {
             to: selectedFarmer.walletAddress,
             supply: BigInt(parsedCredits),
             nft: {
-              name: `BhumiSaara Subsidy Credit — ${season}`,
+              name: `BhumiSaara Subsidy Credit - ${season}`,
               description:
                 `Subsidy credit for ${season}. One credit entitles the holder to 1kg of ` +
                 `chemical fertilizer or 1.5kg of organic fertilizer. Backed by the treasury, not by stock.`,
@@ -353,7 +353,7 @@ export default function CreditIssuance() {
               </Select>
               {!seasonsQuery.isLoading && seasonsQuery.data.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  No seasons exist yet — a season appears once a farmer files a fertilizer request
+                  No seasons exist yet - a season appears once a farmer files a fertilizer request
                   against it.
                 </p>
               )}
@@ -450,7 +450,7 @@ export default function CreditIssuance() {
                           </div>
                         </TableCell>
                         <TableCell className="py-4 px-6 text-muted-foreground">
-                          {farmer.areaName ? `${farmer.areaName}, ${farmer.district ?? ""}` : "—"}
+                          {farmer.areaName ? `${farmer.areaName}, ${farmer.district ?? ""}` : "-"}
                         </TableCell>
                         <TableCell className="py-4 px-6 font-mono text-xs text-muted-foreground">
                           {farmer.walletAddress ? (
@@ -533,7 +533,7 @@ export default function CreditIssuance() {
                   <p className="text-xs text-muted-foreground">
                     {seasonTokenId
                       ? `Adding supply to this season's existing credit token TK-${seasonTokenId}.`
-                      : "This is the season's first issuance — it creates the credit token."}
+                      : "This is the season's first issuance - it creates the credit token."}
                   </p>
                 </div>
               </>

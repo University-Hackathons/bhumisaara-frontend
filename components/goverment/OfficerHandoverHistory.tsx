@@ -150,7 +150,7 @@ export default function OfficerHandoverHistory() {
           </Select>
           {!officersQuery.isLoading && officersQuery.data.length === 0 && (
             <p className="text-xs text-muted-foreground">
-              No officers exist yet — assign one from the Assign Officers screen.
+              No officers exist yet - assign one from the Assign Officers screen.
             </p>
           )}
         </div>
@@ -162,7 +162,7 @@ export default function OfficerHandoverHistory() {
             <AlertTriangle className="w-4 h-4 shrink-0" />
             {totals.disputedCount} {totals.disputedCount === 1 ? "handover is" : "handovers are"}{" "}
             disputed by the farmer
-            {selectedOfficerName ? ` for ${selectedOfficerName}` : ""} — the rows in red below.
+            {selectedOfficerName ? ` for ${selectedOfficerName}` : ""} - the rows in red below.
             Raising a dispute reverses nothing; the tokens are already burned.
           </div>
         )}

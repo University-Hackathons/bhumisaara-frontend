@@ -116,7 +116,7 @@ export default function MyOrders() {
         // The credits have already left the wallet. Losing this hash would
         // leave an order nobody can reconcile, so it stays until dismissed.
         toast.error("Credits transferred on-chain, but the registry save failed.", {
-          description: `Record this transaction hash manually: ${creditTransferHash} — ${describeApiError(
+          description: `Record this transaction hash manually: ${creditTransferHash} - ${describeApiError(
             error,
             "Please check server connection."
           )}`,
@@ -253,7 +253,7 @@ export default function MyOrders() {
           <div>
             <h1 className="text-3xl font-bold text-primary">My Orders</h1>
             <p className="text-lg text-muted-foreground mt-1">
-              Confirm collection to release your credits — nobody else can.
+              Confirm collection to release your credits - nobody else can.
             </p>
           </div>
           {!account && (
@@ -323,7 +323,7 @@ export default function MyOrders() {
                             </span>
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">
-                                {order.fertilizerType ?? "—"}
+                                {order.fertilizerType ?? "-"}
                               </span>
                               {order.isOrganic && (
                                 <Badge variant="success">
@@ -335,16 +335,16 @@ export default function MyOrders() {
                           </div>
                         </TableCell>
                         <TableCell className="py-4 px-6 text-muted-foreground">
-                          {order.sellerName ?? "—"}
+                          {order.sellerName ?? "-"}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-right tabular-nums text-foreground">
                           {formatKg(order.quantityKg)}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-right tabular-nums font-semibold text-foreground">
-                          {order.creditsUsed > 0 ? order.creditsUsed.toLocaleString() : "—"}
+                          {order.creditsUsed > 0 ? order.creditsUsed.toLocaleString() : "-"}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-right tabular-nums text-muted-foreground">
-                          {order.cashAmountLkr > 0 ? formatLkr(order.cashAmountLkr) : "—"}
+                          {order.cashAmountLkr > 0 ? formatLkr(order.cashAmountLkr) : "-"}
                         </TableCell>
                         <TableCell className="py-4 px-6">
                           <Badge variant={STATUS_VARIANT[order.status]}>

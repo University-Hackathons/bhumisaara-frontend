@@ -285,7 +285,7 @@ export default function OfficerDistribution() {
       setWalletError(
         `Scanned wallet does not match ${selectedDemand?.officerName ?? "the officer"}'s registered address.`
       );
-      toast.error("Wallet mismatch — this is not the assigned officer.", {
+      toast.error("Wallet mismatch: this is not the assigned officer.", {
         icon: <AlertCircle className="w-5 h-5 text-destructive" />,
       });
       return;
@@ -344,7 +344,7 @@ export default function OfficerDistribution() {
       // The tokens have already moved on-chain. Losing this hash would leave a
       // transfer nobody can reconcile, so it goes on screen until dismissed.
       toast.error("Tokens transferred on-chain, but the registry save failed.", {
-        description: `Record this transaction hash manually: ${transactionHash} — ${describeApiError(
+        description: `Record this transaction hash manually: ${transactionHash} - ${describeApiError(
           error,
           "Please check server connection."
         )}`,
@@ -490,7 +490,7 @@ export default function OfficerDistribution() {
                               {row.areaName ?? `Area #${row.areaId}`}
                             </TableCell>
                             <TableCell className="py-4 px-6 text-muted-foreground">
-                              {row.district ?? "—"}
+                              {row.district ?? "-"}
                             </TableCell>
                             <TableCell className="py-4 px-6">{row.fertilizerType}</TableCell>
                             <TableCell className="py-4 px-6 text-right tabular-nums">
@@ -627,7 +627,7 @@ export default function OfficerDistribution() {
                         />
                         {scannedKg >= targetKg && (
                           <p className="text-xs text-muted-foreground -mt-3">
-                            Outstanding demand fully covered — remove a sack above to scan a different one.
+                            Outstanding demand fully covered - remove a sack above to scan a different one.
                           </p>
                         )}
 
@@ -712,7 +712,7 @@ export default function OfficerDistribution() {
                     {walletConfirmed && (
                       <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
                         <CheckCircle className="w-4 h-4" />
-                        Wallet confirmed — this is the officer serving this area.
+                        Wallet confirmed - this is the officer serving this area.
                       </div>
                     )}
                     {walletError && (

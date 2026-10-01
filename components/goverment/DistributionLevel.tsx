@@ -223,7 +223,7 @@ export default function DistributionLevel() {
                             {type.outstandingKg > type.stockKg && (
                               <span className="text-destructive">
                                 {" "}
-                                — exceeds the stock on record
+                                - exceeds the stock on record
                               </span>
                             )}
                           </p>
@@ -326,7 +326,7 @@ export default function DistributionLevel() {
                               {row.areaName ?? `Area #${row.areaId}`}
                             </TableCell>
                             <TableCell className="py-4 px-6 text-muted-foreground">
-                              {row.district ?? "—"}
+                              {row.district ?? "-"}
                             </TableCell>
                             <TableCell className="py-4 px-6">{row.fertilizerType}</TableCell>
                             <TableCell className="py-4 px-6 text-right tabular-nums">
@@ -407,9 +407,9 @@ export default function DistributionLevel() {
                               {transfer.toOfficerName ?? `User #${transfer.toOfficerId}`}
                             </TableCell>
                             <TableCell className="py-4 px-6 text-muted-foreground">
-                              {transfer.areaName ?? "—"}
+                              {transfer.areaName ?? "-"}
                             </TableCell>
-                            <TableCell className="py-4 px-6">{transfer.fertilizerType ?? "—"}</TableCell>
+                            <TableCell className="py-4 px-6">{transfer.fertilizerType ?? "-"}</TableCell>
                             <TableCell className="py-4 px-6 text-right tabular-nums font-medium text-foreground">
                               {formatKg(transfer.amountKg)}
                             </TableCell>

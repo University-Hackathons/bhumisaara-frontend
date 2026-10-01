@@ -183,7 +183,7 @@ export default function SellerDashboard() {
                   {formatLkr(stats.cashCollected)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Recorded only — settled directly with farmers
+                  Recorded only - settled directly with farmers
                 </p>
               </CardContent>
             </Card>
@@ -287,7 +287,7 @@ export default function SellerDashboard() {
                         {formatKg(order.quantityKg)}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-right tabular-nums font-semibold text-foreground">
-                        {order.creditsUsed > 0 ? order.creditsUsed.toLocaleString() : "—"}
+                        {order.creditsUsed > 0 ? order.creditsUsed.toLocaleString() : "-"}
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <Badge variant={STATUS_VARIANT[order.status]}>

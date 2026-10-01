@@ -10,6 +10,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import apiPaths from "@/utils/apiPaths";
 import { useAuth } from "@/context/AuthContext";
 import { useMintedBatches } from "@/hooks/use-minted-batches";
+import { FERTILIZER_TYPES } from "@/lib/fertilizerRequests";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -235,12 +236,21 @@ export default function MintBatchForm() {
             disabled={isSaving || isTxPending}
           >
             <SelectTrigger id="fertilizerType" className="w-full h-11 bg-background">
-              <SelectValue placeholder="Select Fertilizer Type" />
+              {/* Function child: Base UI renders the raw value otherwise, which
+                  would show "Urea" instead of "Urea (46% Nitrogen)". */}
+              <SelectValue>
+                {(value) =>
+                  FERTILIZER_TYPES.find((type) => type.value === String(value ?? ""))?.label ??
+                  "Select Fertilizer Type"
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Urea">Urea (46% Nitrogen)</SelectItem>
-              <SelectItem value="MOP">MOP (Muriate of Potash)</SelectItem>
-              <SelectItem value="TSP">TSP (Triple Super Phosphate)</SelectItem>
+              {FERTILIZER_TYPES.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

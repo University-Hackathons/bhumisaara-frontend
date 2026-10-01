@@ -97,14 +97,14 @@ export default function HandoverHistoryTable({
                   <TableCell className="py-4 px-6 font-medium text-foreground">
                     {record.farmerName ?? `Farmer #${record.farmerId}`}
                   </TableCell>
-                  <TableCell className="py-4 px-6">{record.fertilizerType ?? "—"}</TableCell>
+                  <TableCell className="py-4 px-6">{record.fertilizerType ?? "-"}</TableCell>
                   <TableCell className="py-4 px-6 text-right tabular-nums font-medium text-foreground">
                     {formatKg(record.amountDispensedKg)}
                   </TableCell>
                   <TableCell className="py-4 px-6">
                     <div className="flex flex-wrap gap-1">
                       {record.sackSerials.length === 0 ? (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">-</span>
                       ) : (
                         record.sackSerials.map((serial) => (
                           <span

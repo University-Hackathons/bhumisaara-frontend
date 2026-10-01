@@ -168,10 +168,10 @@ export default function AreaApplicationsHistory() {
                       <TableCell className="py-4 px-6">{request.fertilizerType}</TableCell>
                       <TableCell className="py-4 px-6">{formatKg(request.requestedKg)}</TableCell>
                       <TableCell className="py-4 px-6 font-medium text-foreground">
-                        {request.approvedKg != null ? formatKg(request.approvedKg) : "—"}
+                        {request.approvedKg != null ? formatKg(request.approvedKg) : "-"}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-muted-foreground">
-                        {request.reviewedByOfficerUsername ?? "—"}
+                        {request.reviewedByOfficerUsername ?? "-"}
                       </TableCell>
                       <TableCell className="py-4 px-6 text-muted-foreground">
                         {formatDate(request.reviewedAt)}

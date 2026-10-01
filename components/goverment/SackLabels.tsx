@@ -316,7 +316,7 @@ export default function SackLabels() {
             {selectedBatch && !isSacksLoading && sacks.length === 0 && (
               <div className="flex flex-col items-start gap-3">
                 <p className="text-sm text-muted-foreground">
-                  This batch has no sacks — it was minted before sacks were tracked.
+                  This batch has no sacks - it was minted before sacks were tracked.
                 </p>
                 <Button
                   type="button"

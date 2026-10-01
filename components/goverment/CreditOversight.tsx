@@ -34,7 +34,7 @@ import {
   Wallet,
 } from "lucide-react";
 
-const ALL_SEASONS = "__all__";
+const ALL_SEASONS = "All";
 
 /**
  * The ministry's view of the credit float.
@@ -77,7 +77,13 @@ export default function CreditOversight() {
               disabled={seasonsQuery.isLoading}
             >
               <SelectTrigger id="oversightSeason" className="w-full h-11 bg-background">
-                <SelectValue placeholder="All seasons" />
+                {/* Function child: Base UI renders the raw value otherwise, so
+                    the ALL_SEASONS sentinel showed up as a bare "All". */}
+                <SelectValue>
+                  {(value) =>
+                    !value || String(value) === ALL_SEASONS ? "All seasons" : String(value)
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={ALL_SEASONS}>All seasons</SelectItem>
@@ -185,7 +191,7 @@ export default function CreditOversight() {
                   </p>
                   <p className="text-xs text-muted-foreground mt-2">
                     {data?.hasAnomaly
-                      ? "Unaccounted credits — investigate"
+                      ? "Unaccounted credits - investigate"
                       : "Books balance"}
                   </p>
                 </CardContent>

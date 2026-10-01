@@ -62,7 +62,7 @@ export default function OwnDistribution() {
           <div className="flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 px-5 py-4 text-sm text-destructive">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             {totals.disputedCount} {totals.disputedCount === 1 ? "handover is" : "handovers are"}{" "}
-            disputed by the farmer — the rows in red below.
+            disputed by the farmer - the rows in red below.
           </div>
         )}
 

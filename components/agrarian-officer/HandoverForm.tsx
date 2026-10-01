@@ -229,7 +229,7 @@ export default function HandoverForm() {
     // only come back rejected.
     if (scannedKg >= targetKg) {
       toast.error("Approved amount already fully covered.", {
-        description: `${selectedCollection.farmerName} has ${formatKg(targetKg)} remaining — scanning ${serial} would exceed it.`,
+        description: `${selectedCollection.farmerName} has ${formatKg(targetKg)} remaining - scanning ${serial} would exceed it.`,
         icon: <AlertCircle className="w-5 h-5 text-destructive" />,
       });
       return;
@@ -289,7 +289,7 @@ export default function HandoverForm() {
       setWalletError(
         `Scanned wallet does not match ${selectedCollection?.farmerName ?? "the farmer"}'s registered address.`
       );
-      toast.error("Wallet mismatch — this is not the approved farmer.", {
+      toast.error("Wallet mismatch: this is not the approved farmer.", {
         icon: <AlertCircle className="w-5 h-5 text-destructive" />,
       });
       return;
@@ -350,7 +350,7 @@ export default function HandoverForm() {
       // The tokens are already burned. Losing this hash would leave a handover
       // nobody can reconcile, so it stays on screen until dismissed.
       toast.error("Tokens burned, but the registry save failed.", {
-        description: `Record this transaction hash manually: ${burnTransactionHash} — ${describeApiError(
+        description: `Record this transaction hash manually: ${burnTransactionHash} - ${describeApiError(
           error,
           "Please check server connection."
         )}`,
@@ -564,7 +564,7 @@ export default function HandoverForm() {
                       </Select>
                       {!isOwnedLoading && eligibleBatches.length === 0 && (
                         <p className="text-xs text-muted-foreground">
-                          Your wallet holds no {selectedCollection.fertilizerType} stock — ask the
+                          Your wallet holds no {selectedCollection.fertilizerType} stock - ask the
                           ministry to transfer a batch to you.
                         </p>
                       )}
@@ -606,7 +606,7 @@ export default function HandoverForm() {
                         />
                         {scannedKg >= targetKg && (
                           <p className="text-xs text-muted-foreground -mt-3">
-                            Approved amount fully covered — remove a sack above to scan a different one.
+                            Approved amount fully covered - remove a sack above to scan a different one.
                           </p>
                         )}
 
@@ -691,7 +691,7 @@ export default function HandoverForm() {
                     {walletConfirmed && (
                       <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
                         <CheckCircle className="w-4 h-4" />
-                        Wallet confirmed — this is the approved farmer.
+                        Wallet confirmed - this is the approved farmer.
                       </div>
                     )}
                     {walletError && (

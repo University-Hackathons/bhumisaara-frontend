@@ -44,6 +44,39 @@ import {
 
 type PaymentMode = "credits" | "mixed" | "cash";
 type OrganicFilter = "all" | "organic" | "chemical";
+type SubsidyFilter = "any" | "credits";
+
+/**
+ * Every select below is driven by one of these tables.
+ *
+ * Base UI renders the *raw* value in the trigger unless `SelectValue` is given
+ * a function child, which is why these screens were showing "all", "any" and
+ * "mixed" once something was picked. Keeping the label beside the value means
+ * the trigger and the dropdown can never drift apart.
+ */
+const ORGANIC_FILTERS: { value: OrganicFilter; label: string }[] = [
+  { value: "all", label: "All products" },
+  { value: "organic", label: "Organic only" },
+  { value: "chemical", label: "Chemical only" },
+];
+
+const SUBSIDY_FILTERS: { value: SubsidyFilter; label: string }[] = [
+  { value: "any", label: "Any payment" },
+  { value: "credits", label: "Accepts subsidy credits" },
+];
+
+const PAYMENT_MODES: { value: PaymentMode; label: string }[] = [
+  { value: "credits", label: "Subsidy credits" },
+  { value: "mixed", label: "Credits + cash" },
+  { value: "cash", label: "Cash only" },
+];
+
+/** Resolves the label Base UI should show for the currently selected value. */
+const labelFor = (
+  options: { value: string; label: string }[],
+  value: unknown,
+  fallback: string
+) => options.find((option) => option.value === String(value ?? ""))?.label ?? fallback;
 
 export default function Marketplace() {
   const [organicFilter, setOrganicFilter] = useState<OrganicFilter>("all");
@@ -172,7 +205,7 @@ export default function Marketplace() {
       });
 
       toast.dismiss(toastId);
-      toast.success("Order placed — no credits have moved yet.", {
+      toast.success("Order placed - no credits have moved yet.", {
         description:
           "The seller will prepare your goods. Your credits only transfer when you confirm at collection.",
         icon: <CheckCircle className="w-5 h-5 text-primary" />,
@@ -255,7 +288,7 @@ export default function Marketplace() {
                       // Divergence is worth saying out loud: it means credits
                       // moved somewhere the marketplace never recorded.
                       <p className="text-xs text-muted-foreground mt-2">
-                        Registry expects {formatCredits(ledgerBalance)} — your wallet holds{" "}
+                        Registry expects {formatCredits(ledgerBalance)} - your wallet holds{" "}
                         {formatCredits(onChainBalance)}.
                       </p>
                     )}
@@ -282,7 +315,7 @@ export default function Marketplace() {
             <div className="mt-5 pt-4 border-t border-primary/20 flex items-start gap-2">
               <Leaf className="w-4 h-4 text-primary mt-0.5 shrink-0" />
               <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Organic: 1 credit covers 1.5kg</strong> — the same
+                <strong className="text-foreground">Organic: 1 credit covers 1.5kg</strong> - the same
                 credit buys only 1kg of chemical fertilizer. 30kg of organic costs 20 credits.
               </p>
             </div>
@@ -300,12 +333,16 @@ export default function Marketplace() {
               onValueChange={(value) => setOrganicFilter((String(value) as OrganicFilter) || "all")}
             >
               <SelectTrigger id="organicFilter" className="w-full h-11 bg-background">
-                <SelectValue placeholder="All products" />
+                <SelectValue>
+                  {(value) => labelFor(ORGANIC_FILTERS, value, "All products")}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All products</SelectItem>
-                <SelectItem value="organic">Organic only</SelectItem>
-                <SelectItem value="chemical">Chemical only</SelectItem>
+                {ORGANIC_FILTERS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -319,11 +356,16 @@ export default function Marketplace() {
               onValueChange={(value) => setSubsidyOnly(String(value) === "credits")}
             >
               <SelectTrigger id="subsidyFilter" className="w-full h-11 bg-background">
-                <SelectValue placeholder="Any payment" />
+                <SelectValue>
+                  {(value) => labelFor(SUBSIDY_FILTERS, value, "Any payment")}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Any payment</SelectItem>
-                <SelectItem value="credits">Accepts subsidy credits</SelectItem>
+                {SUBSIDY_FILTERS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -517,12 +559,16 @@ export default function Marketplace() {
                       disabled={isPlacing || !acceptsCredits}
                     >
                       <SelectTrigger id="paymentMode" className="w-full h-11 bg-background">
-                        <SelectValue placeholder="Choose payment" />
+                        <SelectValue>
+                          {(value) => labelFor(PAYMENT_MODES, value, "Choose payment")}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="credits">Subsidy credits</SelectItem>
-                        <SelectItem value="mixed">Credits + cash</SelectItem>
-                        <SelectItem value="cash">Cash only</SelectItem>
+                        {PAYMENT_MODES.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     {!acceptsCredits && (
@@ -616,7 +662,7 @@ export default function Marketplace() {
 
                       {breakdown.cashLkr > 0 && (
                         <p className="text-xs text-muted-foreground pt-1">
-                          Cash is settled directly with the seller — BhumiSaara records the amount
+                          Cash is settled directly with the seller - BhumiSaara records the amount
                           but never processes a payment.
                         </p>
                       )}
@@ -630,7 +676,7 @@ export default function Marketplace() {
                 <Wallet className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
                 <p className="text-sm text-muted-foreground">
                   <strong className="text-foreground">No credits move now.</strong> Your credits stay
-                  in your wallet until you confirm collection from your orders screen — the seller
+                  in your wallet until you confirm collection from your orders screen - the seller
                   cannot take them.
                 </p>
               </div>

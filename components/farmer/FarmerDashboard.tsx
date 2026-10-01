@@ -125,7 +125,7 @@ export default function FarmerDashboard() {
                     <Skeleton className="h-4 w-20" />
                   ) : (
                     <span className="text-sm text-foreground font-bold">
-                      {area?.district ?? "—"}
+                      {area?.district ?? "-"}
                     </span>
                   )}
                 </div>
@@ -277,7 +277,7 @@ export default function FarmerDashboard() {
                       }`}
                     >
                       <TableCell className="py-4">{formatDate(collection.createdAt)}</TableCell>
-                      <TableCell className="py-4">{collection.fertilizerType ?? "—"}</TableCell>
+                      <TableCell className="py-4">{collection.fertilizerType ?? "-"}</TableCell>
                       <TableCell className="py-4">{formatKg(collection.amountDispensedKg)}</TableCell>
                       <TableCell className="py-4">
                         <TxHashBadge transactionHash={collection.burnTransactionHash} groupHover />

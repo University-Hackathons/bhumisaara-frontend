@@ -43,6 +43,7 @@ import {
 interface PendingConfirmation {
   orderId: number;
   creditsUsed: number;
+  creditTokenId: string | null;
   productName: string;
   sellerName: string;
 }
@@ -97,6 +98,7 @@ export default function MyOrders() {
     try {
       await axiosInstance.post(apiPaths.orders.confirm(pending.orderId), {
         creditTransferHash,
+        creditTokenId: pending.creditTokenId,
       });
 
       toast.dismiss(toastId);
@@ -145,6 +147,7 @@ export default function MyOrders() {
     pendingConfirmationRef.current = {
       orderId: order.orderId,
       creditsUsed: order.creditsUsed,
+      creditTokenId: order.creditTokenId,
       productName: order.productName ?? "your order",
       sellerName: order.sellerName ?? "the seller",
     };

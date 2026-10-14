@@ -49,6 +49,7 @@ const apiPaths = {
   users: {
     myProfile: "/users/me/profile",
     myWallet: "/users/me/wallet",
+    walletChallenge: (address: string) => `/users/me/wallet/challenge?address=${encodeURIComponent(address)}`,
   },
   farmers: {
     myArea: "/farmers/me/area",

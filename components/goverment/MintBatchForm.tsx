@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isAxiosError } from "axios";
 import { useActiveAccount, useSendTransaction } from "thirdweb/react";
 import { mintTo } from "thirdweb/extensions/erc1155";
 import { waitForReceipt } from "thirdweb";
@@ -40,6 +41,8 @@ const buildBatchImage = (fertilizerType: string, volumeKg: string) => {
   return `data:image/svg+xml;base64,${btoa(svg)}`;
 };
 
+type MintReceipt = Awaited<ReturnType<typeof waitForReceipt>>;
+
 export default function MintBatchForm() {
   const account = useActiveAccount();
   const authContext = useAuth();
@@ -70,7 +73,7 @@ export default function MintBatchForm() {
    *   topics[3]: to (recipient wallet address)
    *   data: [id (uint256), value (uint256)]
    */
-  const extractTokenId = (receipt: any): number => {
+  const extractTokenId = (receipt: MintReceipt): number => {
     try {
       if (receipt?.logs && Array.isArray(receipt.logs)) {
         const TRANSFER_SINGLE_TOPIC = "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62";
@@ -97,7 +100,7 @@ export default function MintBatchForm() {
   /**
    * Saves transaction metadata to Spring Boot backend API upon confirmation.
    */
-  const handleTransactionConfirmed = async (receipt: any) => {
+  const handleTransactionConfirmed = async (receipt: MintReceipt, pending: { importerName: string; fertilizerType: string; volumeKg: number }) => {
     setIsSaving(true);
     const toastId = toast.loading("Saving minted data...");
 
@@ -113,9 +116,9 @@ export default function MintBatchForm() {
       const payload = {
         tokenId,
         transactionHash,
-        importerName: importerName.trim(),
-        fertilizerType,
-        volumeKg: Number(volumeKg),
+        importerName: pending.importerName,
+        fertilizerType: pending.fertilizerType,
+        volumeKg: pending.volumeKg,
       };
 
       // Save metadata to Spring Boot backend API
@@ -135,12 +138,13 @@ export default function MintBatchForm() {
       setImporterName("");
       setFertilizerType("");
       setVolumeKg("");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Backend Metadata Persistence Error:", error);
+      const message = isAxiosError(error) ? error.response?.data?.message : error instanceof Error ? error.message : null;
       toast.dismiss(toastId);
       toast.error("Minted on blockchain, but backend save failed.", {
         description:
-          error?.response?.data?.message || error?.message || "Please check server connection.",
+          message || "Please check server connection.",
         icon: <AlertCircle className="w-5 h-5 text-destructive" />,
       });
     } finally {
@@ -157,6 +161,7 @@ export default function MintBatchForm() {
       return;
     }
 
+    const pending = { importerName: importerName.trim(), fertilizerType, volumeKg: Number(volumeKg) };
     try {
       const transaction = mintTo({
         contract,
@@ -180,11 +185,11 @@ export default function MintBatchForm() {
       });
 
       // Persist to Spring Boot backend
-      await handleTransactionConfirmed(receipt);
-    } catch (error: any) {
+      await handleTransactionConfirmed(receipt, pending);
+    } catch (error: unknown) {
       console.error("Mint Transaction Error:", error);
       toast.error("Blockchain minting transaction failed.", {
-        description: error?.message || "User denied or transaction reverted.",
+        description: error instanceof Error ? error.message : "User denied or transaction reverted.",
       });
     }
   };

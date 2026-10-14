@@ -14,6 +14,7 @@ import { inAppWallet } from "thirdweb/wallets";
 import { client } from "@/lib/thirdwebClient";
 import { contract } from "@/lib/contract";
 import { polygonAmoy as amoy } from "thirdweb/chains";
+import { PendingChainRecords } from "@/components/PendingChainRecords";
 import { useWalletAddressSync } from "@/hooks/use-wallet-address-sync";
 
 const ConnectButton = dynamic(
@@ -88,6 +89,7 @@ export default function DashboardLayout({
                     </div>
                 ) : (
                     <>
+                        <PendingChainRecords />
                         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b border-sidebar-border">
                             <div className="flex items-center gap-2 px-4 w-full">
                                 <SidebarTrigger className="-ml-1" />

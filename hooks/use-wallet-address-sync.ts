@@ -29,7 +29,7 @@ export function useWalletAddressSync() {
   useEffect(() => {
     const address = account?.address?.toLowerCase();
 
-    if (!address || !user) {
+    if (!address || !user || !account) {
       return;
     }
 
@@ -47,7 +47,13 @@ export function useWalletAddressSync() {
     let cancelled = false;
 
     axiosInstance
-      .patch(apiPaths.users.myWallet, { walletAddress: address })
+      .post<{ challengeId: string; message: string }>(apiPaths.users.walletChallenge(address))
+      .then(async ({ data }) => {
+        const signature = await account.signMessage({ message: data.message });
+        return axiosInstance.patch(apiPaths.users.myWallet, {
+          walletAddress: address, challengeId: data.challengeId, signature,
+        });
+      })
       .then(() => {
         if (!cancelled) {
           localStorage.setItem(storageKey, address);
@@ -73,5 +79,5 @@ export function useWalletAddressSync() {
     return () => {
       cancelled = true;
     };
-  }, [account?.address, user]);
+  }, [account, user]);
 }

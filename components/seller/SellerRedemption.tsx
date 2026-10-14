@@ -149,6 +149,7 @@ export default function SellerRedemption() {
     try {
       await axiosInstance.post(apiPaths.redemptionClaims.settle(pending.claimId), {
         burnTransactionHash,
+        tokenId: pending.tokenId,
       });
 
       toast.dismiss(toastId);

@@ -150,3 +150,7 @@ The backend reports ledger credit balances; the frontend reads actual wallet bal
 - Use `ScanField` from `components/goverment/QrScanner.tsx` for QR input with camera and manual entry.
 - Keep loading, empty, and error states visible when fetching data.
 - Follow the Next.js 16 guidance and repository-specific rules in [AGENTS.md](AGENTS.md).
+
+### Confirmed transaction recovery
+
+If a transaction confirms but its registry request fails, the signed-in user sees a persistent retry banner. Retry submits the saved confirmed hash and payload to the backend; it never signs or sends another blockchain transaction. The backend verifies the receipt and movement against its configured Polygon Amoy RPC and contract. Wallet linking signs a short-lived challenge for the connected thirdweb account, including smart accounts.

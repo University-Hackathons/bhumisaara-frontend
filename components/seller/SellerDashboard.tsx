@@ -8,7 +8,8 @@ import type { OrderStatus } from "@/lib/marketplace";
 import { useAuth } from "@/context/AuthContext";
 import { useMyListings } from "@/hooks/use-listings";
 import { useSellerOrders } from "@/hooks/use-orders";
-import { useMyRedemptionClaims } from "@/hooks/use-redemption-claims";
+import { useApiResource, useApiList } from "@/hooks/use-api-resource";
+import apiPaths from "@/utils/apiPaths";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,30 +56,24 @@ export default function SellerDashboard() {
   const { user } = useAuth();
   const listingsQuery = useMyListings();
   const ordersQuery = useSellerOrders();
-  const claimsQuery = useMyRedemptionClaims();
+  const orderStatsQuery = useApiResource<{ toPrepare: number; awaitingFarmer: number; creditsEarned: number; cashCollected: number }>(
+    ["orders", "seller", "stats"], `${apiPaths.orders.seller}/stats`);
+  const availabilityQuery = useApiList<{ availableCredits: number }>(
+    ["redemption-claims", "available"], `${apiPaths.redemptionClaims.all}/available`);
 
   const isOrganicSeller = user?.role === "ORGANIC_FERTILIZER_PRODUCER";
 
   const listings = listingsQuery.data;
   const orders = ordersQuery.data;
-  const claims = claimsQuery.data;
 
   const stats = useMemo(() => {
     const activeListings = listings.filter((listing) => listing.status === "ACTIVE").length;
     const stockListed = listings.reduce((total, listing) => total + listing.availableKg, 0);
-    const toPrepare = orders.filter((order) => order.status === "PENDING_CONFIRMATION").length;
-    const awaitingFarmer = orders.filter((order) => order.status === "CONFIRMED").length;
-
-    const settled = orders.filter(
-      (order) => order.status === "COMPLETED" || order.status === "DISPUTED"
-    );
-    const creditsEarned = settled.reduce((total, order) => total + order.creditsUsed, 0);
-    const cashCollected = settled.reduce((total, order) => total + order.cashAmountLkr, 0);
-
-    const latestClaim = claims[0];
-    const claimable = latestClaim
-      ? Math.max(0, latestClaim.creditsEarnedFromOrders - latestClaim.creditsAlreadyClaimed)
-      : creditsEarned;
+    const toPrepare = orderStatsQuery.data?.toPrepare ?? 0;
+    const awaitingFarmer = orderStatsQuery.data?.awaitingFarmer ?? 0;
+    const creditsEarned = orderStatsQuery.data?.creditsEarned ?? 0;
+    const cashCollected = orderStatsQuery.data?.cashCollected ?? 0;
+    const claimable = availabilityQuery.data.reduce((sum, row) => sum + row.availableCredits, 0);
 
     return {
       activeListings,
@@ -89,11 +84,11 @@ export default function SellerDashboard() {
       cashCollected,
       claimable,
     };
-  }, [listings, orders, claims]);
+  }, [listings, orderStatsQuery.data, availabilityQuery.data]);
 
   const recentOrders = useMemo(() => orders.slice(0, 6), [orders]);
 
-  const isLoading = listingsQuery.isLoading || ordersQuery.isLoading;
+  const isLoading = listingsQuery.isLoading || ordersQuery.isLoading || orderStatsQuery.isLoading || availabilityQuery.isLoading;
 
   return (
     <div className="flex flex-col min-h-full w-full bg-background">

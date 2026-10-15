@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
 import { useOfficerDistributions } from "@/hooks/use-distributions";
+import { useApiResource } from "@/hooks/use-api-resource";
+import apiPaths from "@/utils/apiPaths";
 import { formatKg } from "@/utils/formatters";
 import HandoverHistoryTable from "@/components/HandoverHistoryTable";
 import { Badge } from "@/components/ui/badge";
@@ -14,18 +15,13 @@ export default function OwnDistribution() {
     isLoading,
     error: loadError,
     refetch: loadDistributions,
+    hasMore, loadMore, isLoadingMore,
   } = useOfficerDistributions();
+  const statsQuery = useApiResource<{ count: number; dispensedKg: number; disputedCount: number }>(
+    ["distributions", "officer", "stats"], `${apiPaths.distributions.officer}/stats`);
 
-  const totals = useMemo(() => {
-    const dispensedKg = distributions.reduce(
-      (sum, record) => sum + Number(record.amountDispensedKg || 0),
-      0
-    );
-    return {
-      dispensedKg,
-      disputedCount: distributions.filter((record) => record.disputed).length,
-    };
-  }, [distributions]);
+  const totals = statsQuery.data ?? { count: 0, dispensedKg: 0, disputedCount: 0 };
+  const refresh = () => Promise.all([loadDistributions(), statsQuery.refetch()]);
 
   return (
     <div className="flex flex-col min-h-full w-full bg-background">
@@ -41,13 +37,13 @@ export default function OwnDistribution() {
             {!isLoading && distributions.length > 0 && (
               <Badge variant="secondary" className="px-4 py-2 text-sm">
                 <Package className="w-4 h-4" />
-                {formatKg(totals.dispensedKg)} over {distributions.length}{" "}
-                {distributions.length === 1 ? "handover" : "handovers"}
+                {formatKg(totals.dispensedKg)} over {totals.count}{" "}
+                {totals.count === 1 ? "handover" : "handovers"}
               </Badge>
             )}
             <Button
               variant="outline"
-              onClick={loadDistributions}
+              onClick={refresh}
               disabled={isLoading}
               className="flex items-center gap-2 shadow-sm cursor-pointer"
             >
@@ -70,10 +66,11 @@ export default function OwnDistribution() {
           records={distributions}
           isLoading={isLoading}
           error={loadError}
-          onRetry={loadDistributions}
+          onRetry={refresh}
           emptyTitle="No handovers recorded yet"
           emptyDescription="Once you dispense fertilizer to a farmer, every handover appears here with its burn transaction."
         />
+        {hasMore && <div className="flex justify-center"><Button variant="outline" disabled={isLoadingMore} onClick={() => loadMore()}>{isLoadingMore ? "Loading..." : "Load more"}</Button></div>}
       </main>
     </div>
   );

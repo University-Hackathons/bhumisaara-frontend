@@ -428,6 +428,13 @@ export default function MyOrders() {
             </Table>
           </div>
         </div>
+        {ordersQuery.hasMore && (
+          <div className="flex justify-center">
+            <Button variant="outline" disabled={ordersQuery.isLoadingMore} onClick={() => ordersQuery.loadMore()}>
+              {ordersQuery.isLoadingMore ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );

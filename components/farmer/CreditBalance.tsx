@@ -4,6 +4,7 @@ import { useActiveAccount } from "thirdweb/react";
 import { formatDateTime, truncateAddress } from "@/utils/formatters";
 import { formatCredits } from "@/lib/marketplace";
 import { useMyCreditBalance, useOnChainCreditBalance } from "@/hooks/use-credits";
+import { matchingSeasonLedgerBalance } from "@/lib/ledger-views";
 import TxHashBadge from "@/components/goverment/TxHashBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export default function CreditBalance() {
     activeSeason?.tokenId
   );
 
-  const ledgerBalance = balance?.ledgerBalanceCredits ?? 0;
+  const ledgerBalance = matchingSeasonLedgerBalance(activeSeason);
   const hasDivergence = onChainBalance !== null && onChainBalance !== ledgerBalance;
 
   return (
@@ -150,7 +151,7 @@ export default function CreditBalance() {
                     {(balance?.spentCredits ?? 0).toLocaleString()}
                   </p>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Registry expects {formatCredits(ledgerBalance)} remaining
+                    Across all seasons, registry expects {formatCredits(balance?.ledgerBalanceCredits ?? 0)} remaining
                   </p>
                 </CardContent>
               </Card>
@@ -162,7 +163,7 @@ export default function CreditBalance() {
               <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 px-6 py-4">
                 <AlertCircle className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
                 <p className="text-sm text-muted-foreground">
-                  Your wallet holds {formatCredits(onChainBalance)}, but the registry expects{" "}
+                  For {activeSeason?.season}, your wallet holds {formatCredits(onChainBalance)}, but the registry expects{" "}
                   {formatCredits(ledgerBalance)}. Credits transferred outside the marketplace are not
                   tracked here.
                 </p>
@@ -179,8 +180,9 @@ export default function CreditBalance() {
                   >
                     <p className="text-sm font-medium text-foreground">{season.season}</p>
                     <p className="text-2xl font-bold text-foreground tabular-nums mt-1">
-                      {season.issuedCredits.toLocaleString()}
+                      {season.ledgerBalanceCredits.toLocaleString()} remaining
                     </p>
+                    <p className="text-xs text-muted-foreground">{season.issuedCredits.toLocaleString()} issued · {season.spentCredits.toLocaleString()} spent · {season.committedCredits.toLocaleString()} committed</p>
                     <Badge variant="info" className="mt-2">
                       Credit · TK-{season.tokenId}
                     </Badge>

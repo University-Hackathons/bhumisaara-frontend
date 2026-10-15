@@ -5,6 +5,7 @@ import { useActiveAccount, useReadContract, MediaRenderer } from "thirdweb/react
 import { getOwnedNFTs } from "thirdweb/extensions/erc1155";
 import { contract } from "@/lib/contract";
 import { client } from "@/lib/thirdwebClient";
+import { useMintedBatches } from "@/hooks/use-minted-batches";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Coins, Wallet } from "lucide-react";
 
@@ -24,6 +25,7 @@ interface WalletAssetsProps {
  */
 export default function WalletAssets({ description }: WalletAssetsProps) {
   const account = useActiveAccount();
+  const { batchMap, isNFTsLoading: isStockLoading } = useMintedBatches();
 
   const { data: nfts, isLoading } = useReadContract(getOwnedNFTs, {
     contract,
@@ -34,6 +36,7 @@ export default function WalletAssets({ description }: WalletAssetsProps) {
   const owned = useMemo(
     () =>
       (nfts ?? [])
+        .filter((nft) => batchMap.has(nft.id.toString()))
         .map((nft) => ({
           tokenId: nft.id.toString(),
           name: nft.metadata?.name || `Batch TK-${nft.id.toString()}`,
@@ -42,7 +45,7 @@ export default function WalletAssets({ description }: WalletAssetsProps) {
           quantityKg: Number((nft as { quantityOwned?: bigint }).quantityOwned ?? BigInt(0)),
         }))
         .filter((nft) => nft.quantityKg > 0),
-    [nfts]
+    [nfts, batchMap]
   );
 
   const totalKg = useMemo(
@@ -76,7 +79,7 @@ export default function WalletAssets({ description }: WalletAssetsProps) {
             <Wallet className="w-4 h-4" />
             Connect a wallet to see the batches it holds.
           </div>
-        ) : isLoading ? (
+        ) : isLoading || isStockLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="h-40 rounded-xl bg-muted animate-pulse" />
             <div className="h-40 rounded-xl bg-muted animate-pulse" />

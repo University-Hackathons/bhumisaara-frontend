@@ -1,6 +1,6 @@
 "use client";
 
-import { useApiList } from "@/hooks/use-api-resource";
+import { useApiList, useApiResource } from "@/hooks/use-api-resource";
 import apiPaths from "@/utils/apiPaths";
 import type { ProductListing } from "@/lib/marketplace";
 
@@ -9,6 +9,7 @@ export interface ListingFilters {
   isOrganic?: boolean;
   isSubsidyEligible?: boolean;
   sellerId?: number;
+  page?: number;
 }
 
 /** Builds the querystring the backend's filters expect, omitting empty ones. */
@@ -21,18 +22,23 @@ const withFilters = (filters: ListingFilters) => {
     params.set("isSubsidyEligible", String(filters.isSubsidyEligible));
   }
   if (filters.sellerId !== undefined) params.set("sellerId", String(filters.sellerId));
+  params.set("page", String(filters.page ?? 0));
+  params.set("size", "24");
 
   const query = params.toString();
-  return query ? `${apiPaths.listings.browse}?${query}` : apiPaths.listings.browse;
+  return `${apiPaths.listings.browse}/page?${query}`;
 };
 
 /** The marketplace: every ACTIVE listing, optionally filtered. */
 export function useMarketplaceListings(filters: ListingFilters = {}) {
-  return useApiList<ProductListing>(
-    ["listings", "browse", filters],
-    withFilters(filters),
+  const resource = useApiResource<{ content: ProductListing[]; totalPages: number; totalElements: number }>(
+    ["listings", "browse", filters], withFilters(filters),
     { errorMessage: "Could not load the marketplace." }
   );
+  return { ...resource, data: resource.data?.content ?? [],
+    totalPages: resource.data?.totalPages ?? 0,
+    totalElements: resource.data?.totalElements ?? 0 };
+
 }
 
 /** The signed-in seller's own listings, whatever their status. */

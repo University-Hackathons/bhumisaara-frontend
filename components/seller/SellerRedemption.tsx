@@ -13,7 +13,7 @@ import { formatDateTime } from "@/utils/formatters";
 import { CLAIM_STATUS_LABELS, formatCredits } from "@/lib/marketplace";
 import type { ClaimStatus, RedemptionClaim } from "@/lib/marketplace";
 import { useMyRedemptionClaims } from "@/hooks/use-redemption-claims";
-import { useSellerOrders } from "@/hooks/use-orders";
+import { useApiList } from "@/hooks/use-api-resource";
 import TxHashBadge from "@/components/goverment/TxHashBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,9 +58,11 @@ export default function SellerRedemption() {
   const { mutateAsync: sendTransaction, isPending: isTxPending } = useSendTransaction();
 
   const claimsQuery = useMyRedemptionClaims();
-  const ordersQuery = useSellerOrders();
+  const availableQuery = useApiList<{ season: string; tokenId: string; earnedCredits: number; claimedCredits: number; redeemedCredits: number; availableCredits: number }>(
+    ["redemption-claims", "available"], `${apiPaths.redemptionClaims.all}/available`);
 
   const [creditsInput, setCreditsInput] = useState<string>("");
+  const [selectedSeason, setSelectedSeason] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [busyClaimId, setBusyClaimId] = useState<number | null>(null);
 
@@ -76,38 +78,22 @@ export default function SellerRedemption() {
    * figures there; falling back to the orders list keeps the screen honest
    * before any claim exists.
    */
-  const { earned, alreadyClaimed } = useMemo(() => {
-    const latest = claims[0];
-    if (latest) {
-      return {
-        earned: latest.creditsEarnedFromOrders,
-        alreadyClaimed: latest.creditsAlreadyClaimed,
-      };
-    }
-
-    const earnedFromOrders = ordersQuery.data
-      .filter((order) => order.status === "COMPLETED" || order.status === "DISPUTED")
-      .reduce((total, order) => total + order.creditsUsed, 0);
-
-    return { earned: earnedFromOrders, alreadyClaimed: 0 };
-  }, [claims, ordersQuery.data]);
+  const seasons = useMemo(() => availableQuery.data.map((row) => row.season), [availableQuery.data]);
+  const activeSeason = selectedSeason || seasons[0] || "";
+  const activeAvailability = availableQuery.data.find((row) => row.season === activeSeason);
+  const earned = activeAvailability?.earnedCredits ?? 0;
+  const alreadyClaimed = activeAvailability?.claimedCredits ?? 0;
 
   const claimable = Math.max(0, earned - alreadyClaimed);
-  const redeemed = useMemo(
-    () =>
-      claims
-        .filter((claim) => claim.status === "PAID")
-        .reduce((total, claim) => total + claim.creditsClaimed, 0),
-    [claims]
-  );
+  const redeemed = availableQuery.data.reduce((sum, row) => sum + row.redeemedCredits, 0);
 
   const parsedCredits = Number(creditsInput);
   const isCreditsValid =
     Number.isInteger(parsedCredits) && parsedCredits > 0 && parsedCredits <= claimable;
 
   const refreshAll = useCallback(async () => {
-    await Promise.all([claimsQuery.refetch(), ordersQuery.refetch()]);
-  }, [claimsQuery, ordersQuery]);
+    await Promise.all([claimsQuery.refetch(), availableQuery.refetch()]);
+  }, [claimsQuery, availableQuery]);
 
   const handleSubmitClaim = async () => {
     if (!isCreditsValid || isSubmitting) return;
@@ -118,6 +104,7 @@ export default function SellerRedemption() {
     try {
       await axiosInstance.post(apiPaths.redemptionClaims.submit, {
         creditsClaimed: parsedCredits,
+        season: activeSeason,
       });
 
       toast.dismiss(toastId);
@@ -192,31 +179,14 @@ export default function SellerRedemption() {
     setBusyClaimId(claim.claimId);
 
     try {
-      let tokenIdToBurn: bigint | null = null;
+      const tokenIdToBurn = claim.creditTokenId ? BigInt(claim.creditTokenId) : null;
+      const held = tokenIdToBurn === null ? BigInt(0) : await balanceOf({
+        contract, owner: account.address, tokenId: tokenIdToBurn,
+      });
 
-      for (const rawTokenId of claim.creditTokenIds) {
-        let candidate: bigint;
-        try {
-          candidate = BigInt(rawTokenId);
-        } catch {
-          continue;
-        }
-
-        const held = await balanceOf({
-          contract,
-          owner: account.address,
-          tokenId: candidate,
-        });
-
-        if (Number(held) >= claim.creditsClaimed) {
-          tokenIdToBurn = candidate;
-          break;
-        }
-      }
-
-      if (tokenIdToBurn === null) {
+      if (tokenIdToBurn === null || Number(held) < claim.creditsClaimed) {
         toast.error("Not enough credits in this wallet.", {
-          description: `No credit token in ${account.address.slice(0, 6)}… holds the ${
+          description: `The ${claim.season} credit token in ${account.address.slice(0, 6)}… does not hold the ${
             claim.creditsClaimed
           } credits this claim settles.`,
           icon: <AlertCircle className="w-5 h-5 text-destructive" />,
@@ -333,6 +303,12 @@ export default function SellerRedemption() {
               </p>
             ) : (
               <>
+                <div className="flex flex-col gap-2 max-w-xs">
+                  <label htmlFor="claimSeason" className="text-sm font-medium">Credit season</label>
+                  <select id="claimSeason" value={activeSeason} onChange={(event) => setSelectedSeason(event.target.value)} className="h-11 rounded-md border bg-background px-3">
+                    {seasons.map((season) => <option key={season} value={season}>{season}</option>)}
+                  </select>
+                </div>
                 <div className="flex flex-col gap-2 max-w-xs">
                   <label htmlFor="creditsClaimed" className="text-sm font-medium text-foreground">
                     Credits to claim <span className="text-destructive">*</span>
@@ -480,6 +456,13 @@ export default function SellerRedemption() {
             </Table>
           </div>
         </div>
+        {claimsQuery.hasMore && (
+          <div className="flex justify-center">
+            <Button variant="outline" disabled={claimsQuery.isLoadingMore} onClick={() => claimsQuery.loadMore()}>
+              {claimsQuery.isLoadingMore ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -223,7 +223,9 @@ export default function CreditOversight() {
                     <p className="text-2xl font-bold text-foreground tabular-nums">
                       {(data?.creditsHeldBySellers ?? 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Earned but not yet redeemed</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {(data?.spentCredits ?? 0).toLocaleString()} spent this period; not yet redeemed
+                    </p>
                   </div>
                   <div className="rounded-xl border border-border bg-card px-5 py-4">
                     <div className="flex items-center gap-2 text-muted-foreground mb-1">

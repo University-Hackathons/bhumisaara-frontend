@@ -45,7 +45,7 @@ const STATUS_VARIANT: Record<ClaimStatus, "warning" | "info" | "success" | "dest
  * because hooks cannot be called in a loop over an arbitrary token list.
  */
 function SellerChainBalance({ claim }: { claim: RedemptionClaim }) {
-  const tokenId = claim.creditTokenIds[0] ?? null;
+  const tokenId = claim.creditTokenId;
 
   let parsedTokenId: bigint | null = null;
   if (tokenId) {
@@ -358,6 +358,20 @@ export default function RedemptionClaimsQueue() {
             </Table>
           </div>
         </div>
+        {pendingQuery.hasMore && (
+          <div className="flex justify-center">
+            <Button variant="outline" disabled={pendingQuery.isLoadingMore} onClick={() => pendingQuery.loadMore()}>
+              {pendingQuery.isLoadingMore ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
+        {allQuery.hasMore && (
+          <div className="flex justify-center">
+            <Button variant="outline" disabled={allQuery.isLoadingMore} onClick={() => allQuery.loadMore()}>
+              {allQuery.isLoadingMore ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );

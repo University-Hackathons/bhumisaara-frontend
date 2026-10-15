@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useAreaDemand } from "@/hooks/use-area-demand";
 import { useBatches } from "@/hooks/use-batches";
-import { useTransfers } from "@/hooks/use-transfers";
+import { useTransfers, useStockFlowSummary } from "@/hooks/use-transfers";
 import { coveragePct } from "@/lib/distribution";
 
 export interface TypeBreakdown {
@@ -60,24 +60,25 @@ export function useDistributionLevels() {
   const batchesQuery = useBatches();
   const demandQuery = useAreaDemand();
   const transfersQuery = useTransfers();
+  const flowQuery = useStockFlowSummary();
 
-  const batches = batchesQuery.data;
+  const batches = batchesQuery.data.filter((batch) => batch.tokenType === "STOCK");
   const demand = demandQuery.data;
   const transfers = transfersQuery.data;
 
-  const isLoading = batchesQuery.isLoading || demandQuery.isLoading || transfersQuery.isLoading;
+  const isLoading = batchesQuery.isLoading || demandQuery.isLoading || transfersQuery.isLoading || flowQuery.isLoading;
 
   // All three are government-admin scoped, so a 403 on any one of them means
   // the caller can't run this screen at all — surface the first failure.
-  const loadError = batchesQuery.error ?? demandQuery.error ?? transfersQuery.error;
+  const loadError = batchesQuery.error ?? demandQuery.error ?? transfersQuery.error ?? flowQuery.error;
 
   const refetch = useCallback(async () => {
-    await Promise.all([batchesQuery.refetch(), demandQuery.refetch(), transfersQuery.refetch()]);
-  }, [batchesQuery, demandQuery, transfersQuery]);
+    await Promise.all([batchesQuery.refetch(), demandQuery.refetch(), transfersQuery.refetch(), flowQuery.refetch()]);
+  }, [batchesQuery, demandQuery, transfersQuery, flowQuery]);
 
   const totals = useMemo<DistributionTotals>(() => {
     const registeredStockKg = batches.reduce((sum, batch) => sum + Number(batch.volumeKg || 0), 0);
-    const transferredKg = transfers.reduce((sum, transfer) => sum + Number(transfer.amountKg || 0), 0);
+    const transferredKg = flowQuery.data?.transferredKg ?? 0;
 
     const approvedKg = demand.reduce((sum, row) => sum + Number(row.approvedKg || 0), 0);
     const demandTransferredKg = demand.reduce((sum, row) => sum + Number(row.transferredKg || 0), 0);
@@ -87,7 +88,7 @@ export function useDistributionLevels() {
       registeredStockKg,
       batchCount: batches.length,
       transferredKg,
-      transferCount: transfers.length,
+      transferCount: flowQuery.data?.transferCount ?? 0,
       approvedKg,
       demandTransferredKg,
       outstandingKg,
@@ -95,7 +96,7 @@ export function useDistributionLevels() {
       areasWithDemand: new Set(demand.map((row) => row.areaId)).size,
       blockedRows: demand.filter((row) => !row.officerWallet).length,
     };
-  }, [batches, demand, transfers]);
+  }, [batches, demand, flowQuery.data]);
 
   /** Demand and remaining stock per fertilizer type, worst-covered first. */
   const byType = useMemo<TypeBreakdown[]>(() => {

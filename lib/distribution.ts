@@ -17,6 +17,8 @@ export interface Batch {
   importerName: string;
   fertilizerType: string;
   volumeKg: number;
+  originalVolumeKg: number;
+  tokenType: "STOCK" | "SUBSIDY_CREDIT";
   mintedByUserId?: number;
   createdAt?: string;
 }

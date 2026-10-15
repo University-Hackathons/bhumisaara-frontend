@@ -6,12 +6,16 @@ import type { NFT } from "thirdweb";
 import { contract } from "@/lib/contract";
 import axiosInstance from "@/utils/axiosInstance";
 import apiPaths from "@/utils/apiPaths";
+import { selectRegisteredStockNfts } from "@/lib/ledger-views";
 
 export type MintedNFT = Extract<NFT, { type: "ERC1155" }>;
 
 export interface BackendBatch {
-  tokenId: number;
+  tokenId: string;
   transactionHash?: string;
+  tokenType: "STOCK" | "SUBSIDY_CREDIT";
+  originalVolumeKg?: number;
+  volumeKg?: number;
   [key: string]: unknown;
 }
 
@@ -21,6 +25,8 @@ export interface MintedBatchRecord {
   description: string;
   supply: bigint;
   transactionHash?: string;
+  originalVolumeKg: number;
+  remainingVolumeKg: number;
 }
 
 /**
@@ -39,6 +45,7 @@ export function useMintedBatches() {
 
   const {
     data: backendBatches = [],
+    isLoading: isBatchesLoading,
     refetch: refetchBatches,
   } = useQuery({
     queryKey: ["minted-batches"],
@@ -49,28 +56,31 @@ export function useMintedBatches() {
   });
 
   const batchMap = useMemo(() => {
-    const map = new Map<number, BackendBatch>();
+    const map = new Map<string, BackendBatch>();
     backendBatches.forEach((batch) => {
-      if (batch.tokenId != null) {
-        map.set(Number(batch.tokenId), batch);
+      if (batch.tokenType === "STOCK" && batch.tokenId != null) {
+        map.set(String(batch.tokenId), batch);
       }
     });
     return map;
   }, [backendBatches]);
 
   const mintedNfts = useMemo<MintedNFT[]>(
-    () => (nfts ?? []).filter((nft): nft is MintedNFT => nft.type === "ERC1155"),
-    [nfts]
+    () => selectRegisteredStockNfts(
+      (nfts ?? []).filter((nft): nft is MintedNFT => nft.type === "ERC1155"), backendBatches),
+    [nfts, backendBatches]
   );
 
   const records = useMemo<MintedBatchRecord[]>(
     () =>
-      mintedNfts.map((nft) => ({
+      mintedNfts.filter((nft) => batchMap.has(nft.id.toString())).map((nft) => ({
         tokenId: nft.id,
         name: nft.metadata?.name || "Unknown Batch",
         description: nft.metadata?.description || "No description",
         supply: nft.supply,
-        transactionHash: batchMap.get(Number(nft.id))?.transactionHash,
+        transactionHash: batchMap.get(nft.id.toString())?.transactionHash,
+        originalVolumeKg: Number(batchMap.get(nft.id.toString())?.originalVolumeKg ?? 0),
+        remainingVolumeKg: Number(batchMap.get(nft.id.toString())?.volumeKg ?? 0),
       })),
     [mintedNfts, batchMap]
   );
@@ -81,7 +91,7 @@ export function useMintedBatches() {
 
   return {
     nfts: mintedNfts,
-    isNFTsLoading,
+    isNFTsLoading: isNFTsLoading || isBatchesLoading,
     backendBatches,
     batchMap,
     records,

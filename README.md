@@ -86,11 +86,12 @@ These accounts depend on backend seeding and are intended for local demos. Exist
 | --- | --- |
 | `npm run dev` | Start the development server on port 3000. |
 | `npm run lint` | Run ESLint. |
+| `npm test` | Run stock-token and season-matching behavior tests. |
 | `npx tsc --noEmit` | Run TypeScript checks independently. |
 | `npm run build` | Create a production build. |
 | `npm run start` | Serve the production build. |
 
-There is no automated frontend test suite. The current Next.js configuration enables `typescript.ignoreBuildErrors`, so a successful build does not mean type checking passed. Run the TypeScript command separately; the project guidelines document existing errors in `components/DotGrid.tsx`.
+The frontend has focused behavior tests in `tests/ledger-views.test.mjs`. The current Next.js configuration enables `typescript.ignoreBuildErrors`, so a successful build does not mean type checking passed. Run the TypeScript command separately; the project guidelines document existing errors in `components/DotGrid.tsx`.
 
 For a production build, supply the corresponding environment values before running `npm run build`. Public environment variables are embedded in the browser bundle at build time.
 
@@ -141,7 +142,9 @@ The browser sends a transaction, waits for its receipt, and then records the res
 
 Order placement reserves stock without a blockchain transaction. Seller preparation also moves no tokens; the farmer signs the credit transfer when confirming collection. Cash-only orders skip that transfer. Order cost previews mirror the backend's integer arithmetic, while the backend calculates the stored amounts.
 
-The backend reports ledger credit balances; the frontend reads actual wallet balances separately. Keep stock and credit types distinct using [distribution.ts](lib/distribution.ts) and [marketplace.ts](lib/marketplace.ts).
+The backend reports ledger credit balances per season; the frontend compares each wallet token only with that same season's ledger balance. Orders and seller claims retain the season and token used when they were created. Keep stock and credit types distinct using [distribution.ts](lib/distribution.ts) and [marketplace.ts](lib/marketplace.ts).
+
+Marketplace filters run in the database and the marketplace shows 24 listings per page. Order and claim histories load 50 rows at a time, with a “Load more” action. Stock dashboards and import history match on-chain token IDs to registered `STOCK` batches before counting kilograms. Import history displays both original import volume and remaining stock.
 
 ## Development conventions
 

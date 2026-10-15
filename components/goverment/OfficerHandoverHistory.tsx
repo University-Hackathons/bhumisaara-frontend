@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useAllDistributions } from "@/hooks/use-distributions";
+import { useAllDistributionsPaged } from "@/hooks/use-distributions";
 import { useApiList } from "@/hooks/use-api-resource";
 import apiPaths from "@/utils/apiPaths";
 import { formatKg } from "@/utils/formatters";
@@ -46,7 +46,8 @@ export default function OfficerHandoverHistory() {
     isLoading,
     error: loadError,
     refetch: loadDistributions,
-  } = useAllDistributions();
+    hasMore, loadMore, isLoadingMore,
+  } = useAllDistributionsPaged();
 
   const officersQuery = useApiList<Officer>(["officers"], apiPaths.officers.list, {
     errorMessage: "Could not load the officer list.",
@@ -184,6 +185,7 @@ export default function OfficerHandoverHistory() {
               : "Pick a different officer, or All officers, to see the rest of the national ledger."
           }
         />
+        {hasMore && <div className="flex justify-center"><Button variant="outline" disabled={isLoadingMore} onClick={() => loadMore()}>{isLoadingMore ? "Loading..." : "Load more"}</Button></div>}
       </main>
     </div>
   );

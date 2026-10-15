@@ -38,6 +38,7 @@ export default function ApplicationsHistory() {
     isLoading: isCollectionsLoading,
     error: collectionsError,
     refetch: refetchCollections,
+    hasMore, loadMore, isLoadingMore,
   } = useFarmerDistributions();
 
   const [disputingId, setDisputingId] = useState<number | null>(null);
@@ -285,6 +286,7 @@ export default function ApplicationsHistory() {
             </Table>
           </div>
         </div>
+        {hasMore && <div className="flex justify-center"><Button variant="outline" disabled={isLoadingMore} onClick={() => loadMore()}>{isLoadingMore ? "Loading..." : "Load more"}</Button></div>}
       </main>
     </div>
   );

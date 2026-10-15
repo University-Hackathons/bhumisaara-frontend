@@ -27,7 +27,8 @@ type ImportRecord = {
   id: string;
   name: string;
   description: string;
-  volume: string;
+  originalVolume: string;
+  remainingVolume: string;
   status: string;
   transactionHash?: string;
 };
@@ -36,7 +37,8 @@ const columns: ColumnDef<ImportRecord>[] = [
   { accessorKey: "id", header: "Token ID" },
   { accessorKey: "name", header: "Batch Name" },
   { accessorKey: "description", header: "Description" },
-  { accessorKey: "volume", header: "Volume (KG)" },
+  { accessorKey: "originalVolume", header: "Imported (KG)" },
+  { accessorKey: "remainingVolume", header: "Remaining (KG)" },
   {
     accessorKey: "status",
     header: "Status",
@@ -58,7 +60,8 @@ export default function ImportHistory() {
         id: `TK-${record.tokenId.toString()}`,
         name: record.name,
         description: record.description,
-        volume: formatKg(Number(record.supply)),
+        originalVolume: formatKg(record.originalVolumeKg),
+        remainingVolume: formatKg(record.remainingVolumeKg),
         status: "Minted",
         transactionHash: record.transactionHash,
       })),

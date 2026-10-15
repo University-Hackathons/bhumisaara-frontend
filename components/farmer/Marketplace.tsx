@@ -13,6 +13,7 @@ import {
 } from "@/lib/marketplace";
 import type { ProductListing } from "@/lib/marketplace";
 import { useMarketplaceListings } from "@/hooks/use-listings";
+import { selectSeasonForCredits, matchingSeasonLedgerBalance } from "@/lib/ledger-views";
 import { useMyCreditBalance, useOnChainCreditBalance } from "@/hooks/use-credits";
 import { useMyOrders } from "@/hooks/use-orders";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,10 +82,12 @@ const labelFor = (
 export default function Marketplace() {
   const [organicFilter, setOrganicFilter] = useState<OrganicFilter>("all");
   const [subsidyOnly, setSubsidyOnly] = useState(false);
+  const [page, setPage] = useState(0);
 
   const listingsQuery = useMarketplaceListings({
     isOrganic: organicFilter === "all" ? undefined : organicFilter === "organic",
     isSubsidyEligible: subsidyOnly ? true : undefined,
+    page,
   });
   const balanceQuery = useMyCreditBalance();
   const ordersQuery = useMyOrders();
@@ -98,20 +101,20 @@ export default function Marketplace() {
   const listings = listingsQuery.data;
   const balance = balanceQuery.data;
 
-  // The most recent season is the one a farmer spends from first, so it is the
-  // token the marketplace quotes and reads on-chain.
-  const activeSeason = balance?.seasonTokenIds?.[0] ?? null;
+  // Match the backend's first season with enough uncommitted credits for this order.
+  const requestedCredits = Math.max(0, Number(creditsInput) || 0);
+  const activeSeason = selectSeasonForCredits(balance?.seasonTokenIds ?? [], requestedCredits);
   const { balance: onChainBalance, isLoading: isChainBalanceLoading } = useOnChainCreditBalance(
     activeSeason?.tokenId
   );
 
-  const ledgerBalance = balance?.ledgerBalanceCredits ?? 0;
+  const ledgerBalance = matchingSeasonLedgerBalance(activeSeason);
   /**
    * The chain is authoritative when it can be read: a farmer cannot transfer
    * credits they no longer hold, whatever the ledger thinks. Falling back to
    * the ledger keeps the screen usable before a wallet is connected.
    */
-  const spendableCredits = onChainBalance ?? ledgerBalance;
+  const spendableCredits = Math.min(onChainBalance ?? ledgerBalance, activeSeason?.availableCredits ?? 0);
 
   const quantity = Number(quantityKg);
   const isQuantityValid = Number.isInteger(quantity) && quantity > 0;
@@ -494,6 +497,14 @@ export default function Marketplace() {
                 </Card>
               );
             })}
+          </div>
+        )}
+
+        {listingsQuery.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3">
+            <Button variant="outline" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>Previous</Button>
+            <span className="text-sm">Page {page + 1} of {listingsQuery.totalPages}</span>
+            <Button variant="outline" disabled={page + 1 >= listingsQuery.totalPages} onClick={() => setPage((value) => value + 1)}>Next</Button>
           </div>
         )}
 

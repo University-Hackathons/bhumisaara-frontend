@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { useQuery, type QueryKey } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, type QueryKey } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosInstance";
 import { describeApiError } from "@/utils/apiError";
 
@@ -65,4 +65,31 @@ export function useApiList<T>(
 ): ApiResource<T[]> {
   const resource = useApiResource<T[]>(queryKey, path, options);
   return { ...resource, data: resource.data ?? [] };
+}
+
+/** Fetches bounded history pages and exposes an explicit next-page action. */
+export function useApiPagedList<T>(queryKey: QueryKey, path: string, errorMessage = "Could not load this history.") {
+  const query = useInfiniteQuery({
+    queryKey,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      const separator = path.includes("?") ? "&" : "?";
+      const response = await axiosInstance.get<{
+        content: T[]; page: number; totalPages: number; totalElements: number;
+      }>(`${path}${separator}page=${pageParam}&size=50`);
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => lastPage.page + 1 < lastPage.totalPages
+      ? lastPage.page + 1 : undefined,
+  });
+  return {
+    data: query.data?.pages.flatMap((page) => page.content) ?? [],
+    totalElements: query.data?.pages[0]?.totalElements ?? 0,
+    isLoading: query.isPending,
+    error: query.error ? describeApiError(query.error, errorMessage) : null,
+    refetch: () => query.refetch(),
+    hasMore: query.hasNextPage,
+    loadMore: () => query.fetchNextPage(),
+    isLoadingMore: query.isFetchingNextPage,
+  };
 }

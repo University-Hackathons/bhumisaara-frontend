@@ -63,6 +63,10 @@ export interface SeasonToken {
   season: string;
   tokenId: string;
   issuedCredits: number;
+  spentCredits: number;
+  ledgerBalanceCredits: number;
+  committedCredits: number;
+  availableCredits: number;
 }
 
 /**
@@ -127,6 +131,7 @@ export interface MarketOrder {
   priceLkrPerKg: number | null;
   /** The credit token the farmer's wallet transfers from. Null on a cash-only order. */
   creditTokenId: string | null;
+  season: string | null;
   tokenType: TokenType;
   status: OrderStatus;
   creditTransferHash: string | null;
@@ -158,13 +163,13 @@ export interface RedemptionClaim {
   sellerRole: SellerRole | null;
   sellerWallet: string | null;
   creditsClaimed: number;
+  season: string | null;
+  creditTokenId: string | null;
   status: ClaimStatus;
   tokenType: TokenType;
   burnTransactionHash: string | null;
   creditsEarnedFromOrders: number;
   creditsAlreadyClaimed: number;
-  /** The token ids the admin's queue reads `balanceOf` against to verify a claim. */
-  creditTokenIds: string[];
   submittedAt: string;
   processedAt: string | null;
   processedByUserId: number | null;
@@ -196,6 +201,7 @@ export interface SeasonTotals {
 export interface CreditReconciliation {
   season: string | null;
   totalIssuedCredits: number;
+  spentCredits: number;
   totalRedeemedCredits: number;
   creditsHeldBySellers: number;
   creditsHeldByFarmers: number;

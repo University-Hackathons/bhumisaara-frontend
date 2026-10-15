@@ -7,8 +7,8 @@ import MintBatchForm from "./MintBatchForm";
 import TxHashBadge from "./TxHashBadge";
 import { useMintedBatches } from "@/hooks/use-minted-batches";
 import { useApiList } from "@/hooks/use-api-resource";
-import { useAllDistributions } from "@/hooks/use-distributions";
-import { useTransfers } from "@/hooks/use-transfers";
+
+import { useStockFlowSummary } from "@/hooks/use-transfers";
 import apiPaths from "@/utils/apiPaths";
 import { formatKg } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
@@ -54,34 +54,26 @@ export default function GovermentDashboard() {
 
   const { isNFTsLoading, records } = useMintedBatches();
 
-  // The national ledgers behind the KPI ribbon: every handover burn, every
-  // transfer to an officer, and who is actually staffing an area.
-  const distributionsQuery = useAllDistributions();
-  const transfersQuery = useTransfers();
+  // Grouped stock movement totals and custody, plus current area staffing.
+  const flowQuery = useStockFlowSummary();
   const officersQuery = useApiList<Officer>(
     ["officers", "assigned"],
     `${apiPaths.officers.list}?assigned=true`
   );
 
-  const distributions = distributionsQuery.data;
-  const transfers = transfersQuery.data;
+  const flow = flowQuery.data;
   const officers = officersQuery.data;
-  const isLedgerLoading =
-    distributionsQuery.isLoading || transfersQuery.isLoading || officersQuery.isLoading;
+  const isLedgerLoading = flowQuery.isLoading || officersQuery.isLoading;
 
   const totalImportedTons = useMemo(() => {
-    const totalKg = records.reduce((sum, record) => sum + Number(record.supply || 0), 0);
+    const totalKg = records.reduce((sum, record) => sum + record.originalVolumeKg, 0);
     return (totalKg / 1000).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 1 });
   }, [records]);
 
   const activeTokensMinted = records.length;
 
-  /** One burn per handover to a farmer — the tokens leave circulation there. */
-  const burnedKg = useMemo(
-    () => distributions.reduce((sum, record) => sum + Number(record.amountDispensedKg || 0), 0),
-    [distributions]
-  );
-  const totalBurns = distributions.length;
+  const burnedKg = flow?.burnedKg ?? 0;
+  const totalBurns = flow?.burnCount ?? 0;
 
   /** An area is "active" once an officer is assigned to it. */
   const activeCentres = useMemo(
@@ -93,14 +85,14 @@ export default function GovermentDashboard() {
   const custodianByTokenId = useMemo(() => {
     const holders = new Map<string, Set<string>>();
 
-    transfers.forEach((transfer) => {
-      const name = transfer.toOfficerName ?? `Officer #${transfer.toOfficerId}`;
-      const key = String(transfer.tokenId);
+    (flow?.custody ?? []).forEach((entry) => {
+      const name = entry.officerName ?? `Officer #${entry.officerId}`;
+      const key = String(entry.tokenId);
       holders.set(key, (holders.get(key) ?? new Set<string>()).add(name));
     });
 
     return holders;
-  }, [transfers]);
+  }, [flow]);
 
   const custodianLabel = (tokenId: string) => {
     const holders = custodianByTokenId.get(tokenId);
@@ -162,11 +154,11 @@ export default function GovermentDashboard() {
 
     autoTable(doc, {
       startY: ledgerStartY + 4,
-      head: [["Batch ID", "Token ID", "Supply Level (kg)", "Current Custodian"]],
+      head: [["Batch ID", "Token ID", "Remaining Stock (kg)", "Current Custodian"]],
       body: records.map((record) => [
         record.name,
         `TK-${record.tokenId.toString()}`,
-        formatKg(Number(record.supply)),
+        formatKg(record.remainingVolumeKg),
         custodianLabel(record.tokenId.toString()),
       ]),
       theme: "striped",
@@ -341,7 +333,7 @@ export default function GovermentDashboard() {
                   <TableRow className="border-border">
                     <TableHead className="font-semibold text-muted-foreground py-4 px-6">Batch ID</TableHead>
                     <TableHead className="font-semibold text-muted-foreground py-4 px-6">Token ID</TableHead>
-                    <TableHead className="font-semibold text-muted-foreground py-4 px-6 text-right">Supply Level</TableHead>
+                    <TableHead className="font-semibold text-muted-foreground py-4 px-6 text-right">Remaining Stock</TableHead>
                     <TableHead className="font-semibold text-muted-foreground py-4 px-6">Current Custodian</TableHead>
                     <TableHead className="font-semibold text-muted-foreground py-4 px-6 text-center">Tx Hash</TableHead>
                   </TableRow>
@@ -362,7 +354,7 @@ export default function GovermentDashboard() {
                           TK-{record.tokenId.toString()}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-right font-medium text-foreground">
-                          {formatKg(Number(record.supply))}
+                          {formatKg(record.remainingVolumeKg)}
                         </TableCell>
                         <TableCell className="py-4 px-6 text-foreground">
                           {custodianLabel(record.tokenId.toString())}

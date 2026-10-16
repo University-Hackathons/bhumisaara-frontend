@@ -17,7 +17,7 @@ This project runs Next.js 16, which has breaking changes vs. what's in your trai
 - If you import `unstable_cacheLife`/`unstable_cacheTag`: use the now-stable `cacheLife`/`cacheTag` (no prefix).
 - Parallel route slots (`@slot`) now require an explicit `default.js`/`default.tsx`, or the build fails.
 
-**Important local quirk:** `next.config.ts` still sets `typescript: { ignoreBuildErrors: true }`, but now only for two known files (see §8). `npm run build` therefore still succeeds with type errors in those — run `npx tsc --noEmit` for real signal.
+**Build gate:** `npm run build` checks TypeScript errors. Run `npm run typecheck` for a quicker local check.
 <!-- END:nextjs-agent-rules -->
 
 # Bhumisaara Frontend — Developer & AI Agent Guidelines
@@ -302,12 +302,11 @@ Read this before grepping the repo for the same answers — it saves a round-tri
   - The fertilizer-request status pill is `@/components/RequestStatusBadge.tsx`. It was duplicated verbatim in the farmer and officer history screens; adding a `RequestStatus` meant editing both. Don't fork it again.
   - The national distribution figures (totals, per-type, per-district, per-area, recent transfers) are fetched and aggregated once in `@/hooks/use-distribution-levels.ts`. `DistributionLevel.tsx` is purely presentational on top of it. Every number it renders comes from `GET /api/batches`, `GET /api/v1/transfers/demand` or `GET /api/v1/transfers` — if a metric has no endpoint behind it (farmer collections, dealer stock, warehouse capacity), it is **not** on the screen rather than mocked.
   - `fertilizer_batches.volume_kg` is mint volume **less farmer collections** — transfers to officers deliberately don't consume it. Label it "stock on record", never "total imports".
-- **No automated test suite exists** in this repo (no Jest/Vitest config, no `*.test.*`/`*.spec.*` files). Don't spend time hunting for one.
+- **Automated behavior tests** live in `tests/*.test.mjs` and run with `npm test`.
   - Subsidy credit / marketplace DTO shapes live in `@/lib/marketplace.ts`, the companion to `@/lib/distribution.ts`. Import the types; don't redeclare them per component. The two files are separate **because the two token types are separate** — see §4.
   - **Both seller roles share one set of components**, in `components/seller/`: `SellerListings`, `SellerOrders`, `SellerRedemption`, `SellerDashboard`. `components/private-dealer/DealerDashboard.tsx` and `components/organic-producer/OrganicProducerDashboard.tsx` are now thin wrappers so the `/dashboard` switchboard keeps resolving per role. Don't fork these per role: the only difference between a dealer and a producer is `isOrganic`, which the **server** sets from the caller's role, and two copies would be two chances to let a dealer sell "organic" at 1.5kg per credit.
 - **Known pre-existing issues, unrelated to typical feature work — don't fix opportunistically, only if the user asks:**
-  - `components/DotGrid.tsx` has 43 implicit-`any`/untyped-ref TS errors. It **is** used — it draws the auth page background — so don't delete it.
-  - `components/DotGrid.tsx` is now the **only** reason `next.config.ts` still sets `typescript.ignoreBuildErrors`; `npx tsc --noEmit` is clean once it's excluded. Fix it and the flag can go.
+  - `components/DotGrid.tsx` is typed and retained as the auth page background. TypeScript errors are no longer ignored in builds.
   - `components/private-dealer/DealerInventory.tsx` (the other former offender) **was deleted**: it was a static mock-up of stock the backend never stored, and `/inventory` now renders the real `components/seller/SellerListings.tsx`. `components/chart-area.tsx` is unreferenced since the dealer dashboard was rewritten, but was left in place as a generic primitive.
 - **Required env vars** (see `.env.development`): `NEXT_PUBLIC_API_URL` (Spring Boot backend base URL), `NEXT_PUBLIC_CONTRACT_ADDRESS` (ERC-1155 contract), `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`.
 - **Dev/preview server**: `.claude/launch.json` runs `npm run dev` on port 3000 for browser-based preview tools.

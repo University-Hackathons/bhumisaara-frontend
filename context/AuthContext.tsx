@@ -1,11 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Role } from "@/lib/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 import apiPaths from "@/utils/apiPaths";
 import { walletAddressStorageKey } from "@/lib/walletStorage";
+import { finishSession, sessionExpiredEvent } from "@/lib/session";
 
 interface LoginRequest {
   email: string;
@@ -55,23 +57,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("user");
-      if (raw) {
+      if (raw && localStorage.getItem("token")) {
         const parsed = JSON.parse(raw);
-        setUser(mapSessionToUser(parsed));
+        queueMicrotask(() => setUser(mapSessionToUser(parsed)));
       }
     } catch (e) {
       console.error("Failed to parse user from local storage", e);
     } finally {
-      setIsLoading(false);
+      queueMicrotask(() => setIsLoading(false));
     }
   }, []);
 
+  const endSession = useCallback(() => {
+    const currentId = user?.id;
+    if (currentId) localStorage.removeItem(walletAddressStorageKey(currentId));
+    setUser(null);
+    finishSession(queryClient, () => router.replace("/auth"));
+  }, [user?.id, queryClient, router]);
+
+  useEffect(() => {
+    window.addEventListener(sessionExpiredEvent, endSession);
+    return () => window.removeEventListener(sessionExpiredEvent, endSession);
+  }, [endSession]);
+
   const startSession = async (path: string, body: LoginRequest | RegisterPayload) => {
     const { data } = await axiosInstance.post(path, body);
+
+    await queryClient.cancelQueries();
+    queryClient.clear();
 
     localStorage.setItem("user", JSON.stringify(data));
     localStorage.setItem("token", data.token);
@@ -90,16 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     startSession(apiPaths.auth.register, payload);
 
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    if (user) {
-      // Drop the "already synced this wallet" marker so a fresh login re-links
-      // the connected wallet instead of assuming the backend already has it.
-      localStorage.removeItem(walletAddressStorageKey(user.id));
-    }
-    setUser(null);
-    router.push("/auth");
+    endSession();
   };
 
   return (

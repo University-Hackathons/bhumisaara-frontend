@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from "@/context/LanguageContext";
 
 import { useMemo, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
@@ -50,6 +51,7 @@ const STATUS_VARIANT: Record<OrderStatus, "success" | "warning" | "info" | "mute
  * button that deliberately does not exist.
  */
 export default function SellerOrders() {
+  const { t } = useLanguage();
   const ordersQuery = useSellerOrders();
   const [busyOrderId, setBusyOrderId] = useState<number | null>(null);
 
@@ -119,7 +121,7 @@ export default function SellerOrders() {
       <main className="flex-grow px-4 md:px-8 max-w-7xl mx-auto w-full pb-8 space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-primary">Incoming Orders</h1>
+          <h1 className="text-3xl font-bold text-primary">{t("Incoming Orders")}</h1>
           <p className="text-lg text-muted-foreground mt-1">
             Prepare the goods, then the farmer confirms and releases their credits.
           </p>
@@ -270,7 +272,7 @@ export default function SellerOrders() {
                                   ) : (
                                     <>
                                       <PackageCheck className="w-3.5 h-3.5" />
-                                      Mark ready
+                                      {t("Mark ready")}
                                     </>
                                   )}
                                 </Button>

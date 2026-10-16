@@ -8,6 +8,7 @@ import Login from './Login';
 import Register from './Register';
 import { Button } from '@/components/ui/button';
 import DotGrid from '@/components/DotGrid';
+import { LanguageSelector } from '@/context/LanguageContext';
 
 export default function AuthContainer() {
   const [isSignup, setIsSignup] = useState(false);
@@ -16,7 +17,7 @@ export default function AuthContainer() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
@@ -28,6 +29,7 @@ export default function AuthContainer() {
 
   return (
     <div className="w-full min-h-screen bg-background flex flex-col lg:flex-row relative text-foreground">
+      <div className="absolute top-4 right-4 z-50"><LanguageSelector /></div>
       <Link
         href="/"
         className="absolute top-4 left-4 z-50"

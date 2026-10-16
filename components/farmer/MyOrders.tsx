@@ -14,6 +14,7 @@ import { ORDER_STATUS_LABELS, formatCredits, formatLkr } from "@/lib/marketplace
 import type { MarketOrder, OrderStatus } from "@/lib/marketplace";
 import { useMyOrders } from "@/hooks/use-orders";
 import { useMyCreditBalance } from "@/hooks/use-credits";
+import { useLanguage } from "@/context/LanguageContext";
 import TxHashBadge from "@/components/goverment/TxHashBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ const parseTokenId = (tokenId: string | null): bigint | null => {
 };
 
 export default function MyOrders() {
+  const { t } = useLanguage();
   const account = useActiveAccount();
   const { mutateAsync: sendTransaction, isPending: isTxPending } = useSendTransaction();
 
@@ -254,7 +256,7 @@ export default function MyOrders() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-primary">My Orders</h1>
+            <h1 className="text-3xl font-bold text-primary">{t("My Orders")}</h1>
             <p className="text-lg text-muted-foreground mt-1">
               Confirm collection to release your credits - nobody else can.
             </p>
@@ -382,7 +384,7 @@ export default function MyOrders() {
                                   ) : (
                                     <>
                                       <CheckCircle className="w-3.5 h-3.5" />
-                                      Confirm receipt
+                                      {t("Confirm receipt")}
                                     </>
                                   )}
                                 </Button>
@@ -394,7 +396,7 @@ export default function MyOrders() {
                                   onClick={() => handleCancel(order)}
                                   className="text-muted-foreground hover:text-destructive cursor-pointer"
                                 >
-                                  Cancel
+                                  {t("Cancel")}
                                 </Button>
                               </>
                             )}
@@ -408,7 +410,7 @@ export default function MyOrders() {
                                 className="text-muted-foreground hover:text-destructive cursor-pointer"
                               >
                                 <Flag className="w-3.5 h-3.5" />
-                                Dispute
+                                {t("Dispute")}
                               </Button>
                             )}
                             {!canConfirm && !canDispute && (

@@ -13,6 +13,7 @@ const values = new Map([["user", JSON.stringify({ userId: 8 })]]);
 const localStorage = {
   getItem: (key) => values.get(key) ?? null,
   setItem: (key, value) => values.set(key, value),
+  removeItem: (key) => values.delete(key),
 };
 const window = { dispatchEvent() {} };
 class Event { constructor(type) { this.type = type; } }
@@ -34,7 +35,8 @@ const axiosStub = { create: () => ({ interceptors: {
   request: { use: (yes, no) => { handlers.request = { yes, no }; } },
   response: { use: (yes, no) => { handlers.response = { yes, no }; } },
 } }) };
-load("utils/axiosInstance.ts", { axios: { default: axiosStub, ...axiosStub }, "@/lib/chainRecovery": recovery });
+const session = load("lib/session.ts");
+load("utils/axiosInstance.ts", { axios: { default: axiosStub, ...axiosStub }, "@/lib/chainRecovery": recovery, "@/lib/session": session });
 
 const hash = "0x" + "a".repeat(64);
 const config = { method: "post", url: "/credits/issue", data: JSON.stringify({ transactionHash: hash, creditsKg: 5 }) };
@@ -71,4 +73,12 @@ test("invalid hashes and other users cannot enter this recovery queue", () => {
   recovery.savePendingChainRecord("/credits/issue", { transactionHash: hash });
   values.set("user", JSON.stringify({ userId: 9 }));
   assert.notEqual(recovery.pendingChainRecords()[0].owner, recovery.currentRecoveryOwner());
+});
+
+test("expired session after chain confirmation retains the original hash for the same user", async () => {
+  values.set("user", JSON.stringify({ userId: 8 }));
+  values.set("token", "old-token");
+  await assert.rejects(handlers.response.no({ config: { ...config, headers: { Authorization: "Bearer old-token" } }, response: { status: 401 } }));
+  assert.equal(values.has("token"), false);
+  assert.equal(recovery.pendingChainRecords().find((item) => item.hash === hash)?.owner, "8");
 });

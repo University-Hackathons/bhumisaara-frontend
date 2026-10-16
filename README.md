@@ -86,12 +86,14 @@ These accounts depend on backend seeding and are intended for local demos. Exist
 | --- | --- |
 | `npm run dev` | Start the development server on port 3000. |
 | `npm run lint` | Run ESLint. |
-| `npm test` | Run stock-token and season-matching behavior tests. |
-| `npx tsc --noEmit` | Run TypeScript checks independently. |
+| `npm test` | Run frontend behavior tests, including auth expiry, receipt parsing and transaction recovery. |
+| `npm run typecheck` | Run strict TypeScript checks. |
 | `npm run build` | Create a production build. |
 | `npm run start` | Serve the production build. |
 
-The frontend has focused behavior tests in `tests/ledger-views.test.mjs`. The current Next.js configuration enables `typescript.ignoreBuildErrors`, so a successful build does not mean type checking passed. Run the TypeScript command separately; the project guidelines document existing errors in `components/DotGrid.tsx`.
+The GitHub Actions workflow runs tests, lint, type checking and a production build. Fonts use local system fallbacks so builds do not depend on a Google Fonts download. The language selector offers English, Sinhala and Tamil for navigation and key application, order and review actions; untranslated secondary labels currently remain in English.
+
+Confirmed on-chain transactions whose registry API write fails appear above the dashboard with the original hash and a retry button. Retry sends the saved API payload; it does not send another wallet transaction. Notifications for application reviews and order changes are shown in the account menu. Government and system administrators can review disputes, add findings and close investigations; the original order or handover dispute stays in its ledger.
 
 For a production build, supply the corresponding environment values before running `npm run build`. Public environment variables are embedded in the browser bundle at build time.
 
@@ -100,7 +102,7 @@ For a production build, supply the corresponding environment values before runni
 ```text
 app/
   page.tsx                  # Public landing page
-  layout.tsx                # Theme, thirdweb, auth, and notification providers
+  layout.tsx                # Theme, thirdweb, auth, and language providers
   auth/                     # Login and registration
   (ui)/                     # Authenticated pages and shared dashboard layout
 components/

@@ -12,7 +12,7 @@ export const ThemeToggle = ({ className }: { className?: string }) => {
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   return (

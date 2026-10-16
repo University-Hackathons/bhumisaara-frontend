@@ -6,6 +6,7 @@ import { isAxiosError } from "axios";
 import axiosInstance from "@/utils/axiosInstance";
 import apiPaths from "@/utils/apiPaths";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/context/LanguageContext";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -28,7 +29,8 @@ const describeError = (error: unknown, fallback: string) => {
 };
 
 export default function ApplicationForm() {
-  const seasonOptions = useMemo(buildSeasonOptions, []);
+  const { t } = useLanguage();
+  const seasonOptions = useMemo(() => buildSeasonOptions(), []);
 
   const [season, setSeason] = useState<string>("");
   const [fertilizerType, setFertilizerType] = useState<string>("");
@@ -81,7 +83,7 @@ export default function ApplicationForm() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-primary">Fertilizer Subsidy Application</h1>
+            <h1 className="text-3xl font-bold text-primary">{t("Fertilizer Subsidy Application")}</h1>
             <p className="text-lg text-muted-foreground mt-1">
               Apply for your seasonal subsidy. Your area&apos;s agrarian service officer reviews it.
             </p>
@@ -90,7 +92,7 @@ export default function ApplicationForm() {
             href="/applications-history"
             className={cn(buttonVariants({ variant: "outline" }), "w-fit h-10 px-4 gap-2")}
           >
-            View application history
+            {t("View application history")}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -102,7 +104,7 @@ export default function ApplicationForm() {
                 <Sprout className="w-6 h-6" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold text-foreground">New Application</CardTitle>
+                <CardTitle className="text-2xl font-bold text-foreground">{t("New Application")}</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   One open application per season and fertilizer type.
                 </p>
@@ -116,7 +118,7 @@ export default function ApplicationForm() {
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold">
                   1
                 </span>
-                Season
+                {t("Season")}
               </label>
               <Select
                 value={season}
@@ -124,7 +126,7 @@ export default function ApplicationForm() {
                 disabled={isSaving}
               >
                 <SelectTrigger className="w-full h-12 bg-background">
-                  <SelectValue placeholder="Select season" />
+                  <SelectValue placeholder={t("Select season")} />
                 </SelectTrigger>
                 <SelectContent>
                   {seasonOptions.map((option) => (
@@ -142,7 +144,7 @@ export default function ApplicationForm() {
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold">
                   2
                 </span>
-                Fertilizer Type
+                {t("Fertilizer Type")}
               </label>
               <Select
                 value={fertilizerType}
@@ -155,7 +157,7 @@ export default function ApplicationForm() {
                   <SelectValue>
                     {(value) =>
                       FERTILIZER_TYPES.find((type) => type.value === String(value ?? ""))?.label ??
-                      "Select type"
+                      t("Select type")
                     }
                   </SelectValue>
                 </SelectTrigger>
@@ -178,7 +180,7 @@ export default function ApplicationForm() {
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold">
                   3
                 </span>
-                Amount Required (KG)
+                {t("Amount Required (KG)")}
               </label>
               <div className="relative">
                 <Input
@@ -211,7 +213,7 @@ export default function ApplicationForm() {
                     Submitting...
                   </>
                 ) : (
-                  "Submit Application"
+                  t("Submit Application")
                 )}
               </Button>
             </div>

@@ -1,26 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans, Playfair_Display, Inter } from "next/font/google";
 
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import ThemeProvider from "@/components/ThemeProvider";
-import { cn } from "@/lib/utils";
 import { AuthProvider } from "../context/AuthContext";
 import { ThirdwebProvider } from "thirdweb/react";
-
-const playfairDisplayHeading = Playfair_Display({ subsets: ['latin'], variable: '--font-heading' });
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   title: "Bhumi Saara",
@@ -35,7 +20,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable, playfairDisplayHeading.variable)}
+      className="h-full antialiased font-sans"
       suppressHydrationWarning
     >
       <head>
@@ -50,7 +35,7 @@ export default function RootLayout({
         >
           <Toaster />
           <ThirdwebProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <LanguageProvider><AuthProvider>{children}</AuthProvider></LanguageProvider>
           </ThirdwebProvider>
         </ThemeProvider>
       </body>

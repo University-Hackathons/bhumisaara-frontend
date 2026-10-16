@@ -6,6 +6,7 @@ import apiPaths from "@/utils/apiPaths";
 import { describeApiError } from "@/utils/apiError";
 import { formatDate, formatKg } from "@/utils/formatters";
 import { usePendingFertilizerRequests } from "@/hooks/use-fertilizer-requests";
+import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ import { CheckCircle, ClipboardCheck, Loader2, XCircle } from "lucide-react";
 import type { FertilizerRequest } from "@/lib/fertilizerRequests";
 
 export default function RequestApprovals() {
+  const { t } = useLanguage();
   const {
     data: requests,
     isLoading,
@@ -99,7 +101,7 @@ export default function RequestApprovals() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-primary">Fertilizer Request Approvals</h1>
+            <h1 className="text-3xl font-bold text-primary">{t("Fertilizer Request Approvals")}</h1>
             <p className="text-lg text-muted-foreground mt-1">
               Pending requests from farmers in your assigned area.
             </p>
@@ -112,7 +114,7 @@ export default function RequestApprovals() {
 
         <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">Review Queue</h2>
+            <h2 className="text-xl font-semibold text-foreground">{t("Review Queue")}</h2>
             <Button variant="outline" size="sm" onClick={loadRequests} disabled={isLoading}>
               Refresh
             </Button>
@@ -185,7 +187,7 @@ export default function RequestApprovals() {
                               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                             >
                               <XCircle className="w-4 h-4" />
-                              Reject
+                              {t("Reject")}
                             </Button>
                             <Button
                               type="button"
@@ -199,7 +201,7 @@ export default function RequestApprovals() {
                               ) : (
                                 <CheckCircle className="w-4 h-4" />
                               )}
-                              Approve
+                              {t("Approve")}
                             </Button>
                           </div>
                         </TableCell>

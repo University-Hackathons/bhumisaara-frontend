@@ -1,5 +1,6 @@
 import axios from "axios";
 import { clearPendingChainRecord, savePendingChainRecord } from "@/lib/chainRecovery";
+import { expireSession } from "@/lib/session";
 
 // Points at the backend's context path (server.servlet.context-path), so the
 // API version is set once here and never repeated in utils/apiPaths.ts.
@@ -37,15 +38,13 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     const config = error.config;
-    if (typeof window !== "undefined" && (!error.response || error.response.status >= 500)
+    if (typeof window !== "undefined" && (!error.response || error.response.status >= 500 || error.response.status === 401)
       && config?.method?.toLowerCase() === "post" && config.url) {
       try { savePendingChainRecord(config.url, JSON.parse(config.data || "{}")); } catch { /* no JSON payload */ }
     }
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      }
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      const requestToken = String(config?.headers?.Authorization ?? "").replace(/^Bearer /, "");
+      if (!requestToken || requestToken === localStorage.getItem("token")) expireSession();
     }
     return Promise.reject(error);
   }

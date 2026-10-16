@@ -18,6 +18,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { describeApiError } from "@/utils/apiError";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
@@ -37,6 +38,7 @@ const ROLE_OPTIONS: { value: Role; label: string }[] = [
 ];
 
 export default function Register({ onSwitchToLogin }: RegisterProps) {
+  const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const { register } = useAuth();
@@ -76,10 +78,10 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
     <Card className="w-full max-w-md">
       <CardHeader className="text-center lg:text-left space-y-2">
         <CardTitle className="text-3xl lg:text-4xl font-bold font-clash-display">
-          Create Account
+          {t("Create Account")}
         </CardTitle>
         <CardDescription>
-          Join us today and find your perfect boarding place.
+          Join Bhumisaara to manage fertilizer applications and orders.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -94,7 +96,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Email
+                {t("Email")}
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
@@ -117,7 +119,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
 
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                User Name
+                {t("Username")}
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
@@ -139,7 +141,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Password
+                {t("Password")}
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
@@ -173,7 +175,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Role
+                {t("Role")}
               </label>
               <div className="relative group">
                 <Select
@@ -210,7 +212,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
             disabled={formik.isSubmitting}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {formik.isSubmitting ? "Creating Account..." : "Register"}
+            {formik.isSubmitting ? "Creating Account..." : t("Register")}
           </button>
         </form>
       </CardContent>

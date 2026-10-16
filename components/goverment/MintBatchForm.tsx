@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Coins, CheckCircle, AlertCircle } from "lucide-react";
+import { mintedTokenId } from "@/lib/mintReceipt";
 
 /**
  * Wallet UIs (including thirdweb's own details modal) drop any NFT whose
@@ -65,39 +66,6 @@ export default function MintBatchForm() {
   );
 
   /**
-   * Parses the newly minted token ID from thirdweb ERC-1155 receipt logs.
-   * TransferSingle event structure:
-   *   topics[0]: event signature (0xc3d58168...)
-   *   topics[1]: operator
-   *   topics[2]: from
-   *   topics[3]: to (recipient wallet address)
-   *   data: [id (uint256), value (uint256)]
-   */
-  const extractTokenId = (receipt: MintReceipt): number => {
-    try {
-      if (receipt?.logs && Array.isArray(receipt.logs)) {
-        const TRANSFER_SINGLE_TOPIC = "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62";
-
-        for (const log of receipt.logs) {
-          if (log.topics && log.topics[0]?.toLowerCase() === TRANSFER_SINGLE_TOPIC) {
-            const dataHex = (log.data || "").replace(/^0x/, "");
-            if (dataHex.length >= 64) {
-              const idHex = dataHex.slice(0, 64);
-              const parsedId = parseInt(idHex, 16);
-              if (!isNaN(parsedId) && Number.isSafeInteger(parsedId)) {
-                return parsedId;
-              }
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("Could not parse tokenId from log data:", err);
-    }
-    return 0;
-  };
-
-  /**
    * Saves transaction metadata to Spring Boot backend API upon confirmation.
    */
   const handleTransactionConfirmed = async (receipt: MintReceipt, pending: { importerName: string; fertilizerType: string; volumeKg: number }) => {
@@ -110,7 +78,7 @@ export default function MintBatchForm() {
       }
 
       const transactionHash = receipt.transactionHash;
-      const tokenId = extractTokenId(receipt);
+      const tokenId = mintedTokenId(receipt);
 
       // No mintedByUserId — the backend takes the minting admin from the JWT.
       const payload = {
@@ -142,9 +110,9 @@ export default function MintBatchForm() {
       console.error("Backend Metadata Persistence Error:", error);
       const message = isAxiosError(error) ? error.response?.data?.message : error instanceof Error ? error.message : null;
       toast.dismiss(toastId);
-      toast.error("Minted on blockchain, but backend save failed.", {
+      toast.error("Mint confirmed, but registry recording needs attention.", {
         description:
-          message || "Please check server connection.",
+          `${message || "Please check server connection."} Original hash: ${receipt.transactionHash}`,
         icon: <AlertCircle className="w-5 h-5 text-destructive" />,
       });
     } finally {

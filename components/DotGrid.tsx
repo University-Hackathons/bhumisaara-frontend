@@ -3,21 +3,22 @@
 import { useRef, useEffect, useCallback, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { InertiaPlugin } from 'gsap/InertiaPlugin';
+import type { CSSProperties } from 'react';
 
 gsap.registerPlugin(InertiaPlugin);
 
-const throttle = (func, limit) => {
+const throttle = (func: (event: MouseEvent) => void, limit: number) => {
   let lastCall = 0;
-  return function (...args) {
+  return function (event: MouseEvent) {
     const now = performance.now();
     if (now - lastCall >= limit) {
       lastCall = now;
-      func.apply(this, args);
+      func(event);
     }
   };
 };
 
-function hexToRgb(hex) {
+function hexToRgb(hex: string) {
   const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
   if (!m) return { r: 0, g: 0, b: 0 };
   return {
@@ -26,6 +27,8 @@ function hexToRgb(hex) {
     b: parseInt(m[3], 16)
   };
 }
+
+interface Dot { cx: number; cy: number; xOffset: number; yOffset: number; _inertiaApplied: boolean }
 
 const DotGrid = ({
   dotSize = 16,
@@ -41,10 +44,10 @@ const DotGrid = ({
   returnDuration = 1.5,
   className = '',
   style
-}) => {
-  const wrapperRef = useRef(null);
-  const canvasRef = useRef(null);
-  const dotsRef = useRef([]);
+}: { dotSize?: number; gap?: number; baseColor?: string; activeColor?: string; proximity?: number; speedTrigger?: number; shockRadius?: number; shockStrength?: number; maxSpeed?: number; resistance?: number; returnDuration?: number; className?: string; style?: CSSProperties }) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const dotsRef = useRef<Dot[]>([]);
   const pointerRef = useRef({
     x: 0,
     y: 0,
@@ -95,7 +98,7 @@ const DotGrid = ({
     const startX = extraX / 2 + dotSize / 2;
     const startY = extraY / 2 + dotSize / 2;
 
-    const dots = [];
+    const dots: Dot[] = [];
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const cx = startX + x * cell;
@@ -109,7 +112,7 @@ const DotGrid = ({
   useEffect(() => {
     if (!circlePath) return;
 
-    let rafId;
+    let rafId = 0;
     const proxSq = proximity * proximity;
 
     const draw = () => {
@@ -154,21 +157,20 @@ const DotGrid = ({
 
   useEffect(() => {
     buildGrid();
-    let ro = null;
-    if ('ResizeObserver' in window) {
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
       ro = new ResizeObserver(buildGrid);
       wrapperRef.current && ro.observe(wrapperRef.current);
-    } else {
-      window.addEventListener('resize', buildGrid);
     }
+    window.addEventListener('resize', buildGrid);
     return () => {
       if (ro) ro.disconnect();
-      else window.removeEventListener('resize', buildGrid);
+      window.removeEventListener('resize', buildGrid);
     };
   }, [buildGrid]);
 
   useEffect(() => {
-    const onMove = e => {
+    const onMove = (e: MouseEvent) => {
       const now = performance.now();
       const pr = pointerRef.current;
       const dt = pr.lastTime ? now - pr.lastTime : 16;
@@ -190,7 +192,8 @@ const DotGrid = ({
       pr.vy = vy;
       pr.speed = speed;
 
-      const rect = canvasRef.current.getBoundingClientRect();
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
       pr.x = e.clientX - rect.left;
       pr.y = e.clientY - rect.top;
 
@@ -217,8 +220,9 @@ const DotGrid = ({
       }
     };
 
-    const onClick = e => {
-      const rect = canvasRef.current.getBoundingClientRect();
+    const onClick = (e: MouseEvent) => {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
       const cx = e.clientX - rect.left;
       const cy = e.clientY - rect.top;
       for (const dot of dotsRef.current) {

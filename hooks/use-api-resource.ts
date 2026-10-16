@@ -4,6 +4,8 @@ import { useCallback } from "react";
 import { useQuery, useInfiniteQuery, type QueryKey } from "@tanstack/react-query";
 import axiosInstance from "@/utils/axiosInstance";
 import { describeApiError } from "@/utils/apiError";
+import { useAuth } from "@/context/AuthContext";
+import { accountQueryKey } from "@/lib/accountQueryKey";
 
 export interface ApiResource<T> {
   data: T;
@@ -17,6 +19,7 @@ interface Options {
   /** Skip the request until its inputs exist (e.g. no batch selected yet). */
   enabled?: boolean;
   errorMessage?: string;
+  refetchInterval?: number;
 }
 
 /**
@@ -35,14 +38,17 @@ export function useApiResource<T>(
   options: Options = {}
 ): ApiResource<T | undefined> {
   const { enabled = true, errorMessage = "Could not load this data." } = options;
+  const { user, isLoading } = useAuth();
+  const scopedKey = accountQueryKey(user?.id, queryKey);
 
   const query = useQuery({
-    queryKey,
+    queryKey: scopedKey,
     queryFn: async () => {
       const response = await axiosInstance.get<T>(path);
       return response.data;
     },
-    enabled,
+    enabled: enabled && !isLoading && Boolean(user),
+    refetchInterval: options.refetchInterval,
   });
 
   const refetch = useCallback(() => query.refetch(), [query]);
@@ -68,9 +74,10 @@ export function useApiList<T>(
 }
 
 /** Fetches bounded history pages and exposes an explicit next-page action. */
-export function useApiPagedList<T>(queryKey: QueryKey, path: string, errorMessage = "Could not load this history.") {
+export function useApiPagedList<T>(queryKey: QueryKey, path: string, errorMessage = "Could not load this history.", enabled = true) {
+  const { user, isLoading } = useAuth();
   const query = useInfiniteQuery({
-    queryKey,
+    queryKey: accountQueryKey(user?.id, queryKey),
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
       const separator = path.includes("?") ? "&" : "?";
@@ -81,6 +88,7 @@ export function useApiPagedList<T>(queryKey: QueryKey, path: string, errorMessag
     },
     getNextPageParam: (lastPage) => lastPage.page + 1 < lastPage.totalPages
       ? lastPage.page + 1 : undefined,
+    enabled: enabled && !isLoading && Boolean(user),
   });
   return {
     data: query.data?.pages.flatMap((page) => page.content) ?? [],

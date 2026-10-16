@@ -266,6 +266,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: "adminAreas", label: "Areas & Coverage", href: "/admin-areas", group: "administration", roles: ["SYSTEM_ADMIN"] },
   { id: "adminWallets", label: "Wallets", href: "/admin-wallets", group: "administration", roles: ["SYSTEM_ADMIN"] },
   { id: "adminAuditLog", label: "Audit Log", href: "/admin-audit-logs", group: "administration", roles: ["SYSTEM_ADMIN"] },
+  { id: "disputeInvestigations", label: "Dispute Investigations", href: "/dispute-investigations", group: "administration", roles: ["GOVERNMENT_ADMIN", "SYSTEM_ADMIN"] },
 
   // NOTE: /profile is deliberately absent. It is reached from the sidebar
   // footer's account menu, and listing it twice made it read as two places.
@@ -359,4 +360,5 @@ export const ICONS_MAP: Record<string, ComponentType<SVGProps<SVGSVGElement>>> =
   adminAreas: MapPinned,
   adminWallets: WalletCards,
   adminAuditLog: ScrollText,
+  disputeInvestigations: ClipboardCheck,
 };

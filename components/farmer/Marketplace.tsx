@@ -16,6 +16,7 @@ import { useMarketplaceListings } from "@/hooks/use-listings";
 import { selectSeasonForCredits, matchingSeasonLedgerBalance } from "@/lib/ledger-views";
 import { useMyCreditBalance, useOnChainCreditBalance } from "@/hooks/use-credits";
 import { useMyOrders } from "@/hooks/use-orders";
+import { useLanguage } from "@/context/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,7 @@ const labelFor = (
 ) => options.find((option) => option.value === String(value ?? ""))?.label ?? fallback;
 
 export default function Marketplace() {
+  const { t } = useLanguage();
   const [organicFilter, setOrganicFilter] = useState<OrganicFilter>("all");
   const [subsidyOnly, setSubsidyOnly] = useState(false);
   const [page, setPage] = useState(0);
@@ -232,7 +234,7 @@ export default function Marketplace() {
       <main className="flex-grow px-4 md:px-8 max-w-7xl mx-auto w-full pb-8 space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-primary">Marketplace</h1>
+          <h1 className="text-3xl font-bold text-primary">{t("Marketplace")}</h1>
           <p className="text-lg text-muted-foreground mt-1">
             Buy fertilizer from registered dealers and organic producers with your subsidy credits.
           </p>
@@ -714,7 +716,7 @@ export default function Marketplace() {
                   ) : (
                     <>
                       <ShoppingCart className="w-4 h-4" />
-                      Place order
+                      {t("Place order")}
                     </>
                   )}
                 </Button>

@@ -16,6 +16,7 @@ import { contract } from "@/lib/contract";
 import { polygonAmoy as amoy } from "thirdweb/chains";
 import { PendingChainRecords } from "@/components/PendingChainRecords";
 import { useWalletAddressSync } from "@/hooks/use-wallet-address-sync";
+import { LanguageSelector } from "@/context/LanguageContext";
 
 const ConnectButton = dynamic(
     () => import("thirdweb/react").then((mod) => mod.ConnectButton),
@@ -66,7 +67,7 @@ export default function DashboardLayout({
     useWalletAddressSync();
 
     useEffect(() => {
-        setMounted(true);
+        queueMicrotask(() => setMounted(true));
     }, []);
 
     useEffect(() => {
@@ -94,6 +95,7 @@ export default function DashboardLayout({
                             <div className="flex items-center gap-2 px-4 w-full">
                                 <SidebarTrigger className="-ml-1" />
                                 <div className="ml-auto flex items-center gap-3">
+                                    <LanguageSelector />
                                     {mounted ? (
                                         <ConnectButton
                                             client={client}

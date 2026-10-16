@@ -37,6 +37,11 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
 import logo from "@/app/public/logo.svg"
+import { useLanguage } from "@/context/LanguageContext"
+import { useApiList } from "@/hooks/use-api-resource"
+import axiosInstance from "@/utils/axiosInstance"
+
+interface NotificationItem { id: number; kind: string; message: string; targetUrl: string | null; readAt: string | null }
 
 function AppLogo() {
   return (
@@ -111,6 +116,9 @@ function NavUser({
   const { isMobile } = useSidebar()
   const router = useRouter()
   const { logout } = useAuth()
+  const { t } = useLanguage()
+  const notifications = useApiList<NotificationItem>(["notifications"], "/notifications", { refetchInterval: 30000 })
+  const unread = notifications.data.filter((item) => !item.readAt).length
 
   return (
     <SidebarMenu>
@@ -154,12 +162,22 @@ function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
                 <BadgeCheck className="mr-2 h-4 w-4" />
-                Profile
+                {t("Profile")}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell className="mr-2 h-4 w-4" />
-                Notifications
+                {t("Notifications")} {unread > 0 ? `(${unread})` : ""}
               </DropdownMenuItem>
+              <div className="max-h-60 overflow-y-auto px-2" aria-label={t("Notifications")}>
+                {notifications.data.length === 0 && <p className="px-2 py-2 text-xs text-muted-foreground">No notifications yet.</p>}
+                {notifications.data.map((item) => <button key={item.id} type="button"
+                  className={`block w-full rounded px-2 py-2 text-left text-xs hover:bg-muted ${item.readAt ? "text-muted-foreground" : "font-semibold"}`}
+                  onClick={async () => {
+                    await axiosInstance.post(`/notifications/${item.id}/read`);
+                    await notifications.refetch();
+                    if (item.targetUrl?.startsWith("/")) router.push(item.targetUrl);
+                  }}>{item.message}</button>)}
+              </div>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
@@ -168,7 +186,7 @@ function NavUser({
                 router.push('/auth');
               }}>
                 <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                {t("Log out")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
@@ -182,13 +200,14 @@ export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth()
+  const { t } = useLanguage()
   const pathname = usePathname()
 
   const navGroups = getNavGroupsForRole(user?.role).map((group) => ({
     id: group.id,
-    label: group.label,
+    label: t(group.label),
     items: group.items.map((item) => ({
-      title: item.label,
+      title: t(item.label),
       url: item.href,
       icon: ICONS_MAP[item.id] ?? SquareTerminal,
       // Matching on a bare `startsWith` lit up every item whose href is a

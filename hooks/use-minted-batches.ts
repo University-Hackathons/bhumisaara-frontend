@@ -7,6 +7,8 @@ import { contract } from "@/lib/contract";
 import axiosInstance from "@/utils/axiosInstance";
 import apiPaths from "@/utils/apiPaths";
 import { selectRegisteredStockNfts } from "@/lib/ledger-views";
+import { useAuth } from "@/context/AuthContext";
+import { accountQueryKey } from "@/lib/accountQueryKey";
 
 export type MintedNFT = Extract<NFT, { type: "ERC1155" }>;
 
@@ -37,6 +39,7 @@ export interface MintedBatchRecord {
  * reads from (and refetches into) the same cache.
  */
 export function useMintedBatches() {
+  const { user, isLoading } = useAuth();
   const {
     data: nfts,
     isLoading: isNFTsLoading,
@@ -48,11 +51,12 @@ export function useMintedBatches() {
     isLoading: isBatchesLoading,
     refetch: refetchBatches,
   } = useQuery({
-    queryKey: ["minted-batches"],
+    queryKey: accountQueryKey(user?.id, ["minted-batches"]),
     queryFn: async () => {
       const response = await axiosInstance.get<BackendBatch[]>(apiPaths.batches.list);
       return response.data || [];
     },
+    enabled: !isLoading && Boolean(user),
   });
 
   const batchMap = useMemo(() => {

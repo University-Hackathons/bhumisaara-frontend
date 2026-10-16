@@ -112,7 +112,7 @@ export function useAdminMutation() {
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: adminQueryKeys.all });
+      await queryClient.invalidateQueries({ queryKey: ["account"] });
     },
   });
 }
